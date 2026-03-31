@@ -6644,6 +6644,54 @@ body {
 
 /* GitHub content panel CSS moved to github.css */
 
+/* GitHub workspace layout hardening */
+#githubTab .split-view {
+    min-height: 0;
+}
+
+#githubTab .logs-panel {
+    min-width: 0;
+}
+
+#githubContent {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: auto;
+}
+
+#githubContent .breadcrumb {
+    flex-shrink: 0;
+}
+
+#githubContent .file-list {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    overflow: auto;
+    padding: 12px;
+}
+
+#githubContent .file-viewer {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+}
+
+#githubContent .file-content-wrapper {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    height: auto;
+}
+
+#githubContent .file-content {
+    min-width: 0;
+    min-height: 0;
+}
+
 /* ═══════════════════════════════════════════════
    Auth banner
 ═══════════════════════════════════════════════ */

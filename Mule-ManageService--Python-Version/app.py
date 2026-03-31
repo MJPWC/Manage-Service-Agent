@@ -9,15 +9,12 @@ import math
 import os
 import re
 import secrets
-import urllib.parse
 
 import sys
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Dict, Optional
 
-import requests
-import base64
 from dotenv import load_dotenv
 from flask import (
     Flask,
@@ -41,8 +38,6 @@ from src.services.correlation_id_storage import (
 )
 from src.utils.code_validator import MuleSoftCodeValidator
 from src.utils.context_analyzer import MuleSoftContextAnalyzer
-from src.utils.debug_log_parser import MuleLogDetector
-from src.utils.log_parser import LogParser
 from src.utils.static_analysis import MuleSoftStaticAnalyzer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

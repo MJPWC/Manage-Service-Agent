@@ -74,21 +74,21 @@
     <div class="main-container">
 
       <div class="tab-navigation">
-        <button class="tab-btn active" data-tab="mulesoft" onclick="switchTab('mulesoft',this)">
+        <button class="tab-btn active" data-tab="mulesoft">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="4" />
           </svg>
           MuleSoft Applications
         </button>
-        <button class="tab-btn" data-tab="github" onclick="switchTab('github',this)">
+        <button class="tab-btn" data-tab="github">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path
               d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
             </svg>
           GitHub Repositories
         </button>
-        <button class="tab-btn" data-tab="correlation" onclick="switchTab('correlation',this)">
+        <button class="tab-btn" data-tab="correlation">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="7" cy="12" r="3"/>
             <circle cx="17" cy="12" r="3"/>
@@ -427,13 +427,6 @@
   </div>
 
   <script>
-    function switchTab(name, btn) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(name + 'Tab').classList.add('active');
-    }
-    
     function toggleFilter() {
       const filterBar = document.getElementById('filterBar');
       filterBar.classList.toggle('open');
@@ -562,14 +555,6 @@
       updateFilterStatus();
     }
     
-    function selectApp(el, name) {
-      document.querySelectorAll('.api-item').forEach(i => i.classList.remove('active'));
-      el.classList.add('active');
-    }
-    
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
     /* GitHub / Anypoint modal actions: window.loginGithubFromPopup, closeGithubLoginModal, etc. are defined in app.js */
 
     // Add event listeners for filter inputs
@@ -622,10 +607,15 @@
   <input type="file" id="changeLogFileInput" accept=".log,.txt" style="display: none;">
   <script src="/static/js/auth-api.js"></script>
   <script src="/static/js/anypoint.js"></script>
+  <script src="/static/js/github.js"></script>
   <script src="/static/js/multi-file-upload.js"></script>
   <script src="/static/js/loading-utils.js"></script>
   <script src="/static/js/refresh-utils.js"></script>
   <script src="/static/js/modal-utils.js"></script>
+  <script src="/static/js/event-details.js"></script>
+  <script src="/static/js/correlation-panel.js"></script>
+  <script src="/static/js/github-workspace.js"></script>
+  <script src="/static/js/mulesoft-panel.js"></script>
   <script src="/static/js/app.js"></script>
   <script src="/static/js/serviceNow.js"></script>
 </body>

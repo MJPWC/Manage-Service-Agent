@@ -201,4 +201,83 @@
   window.updateBusinessGroupDisplay = updateBusinessGroupDisplay;
   window.setupBusinessGroupAndEnvironmentHandlers = setupBusinessGroupAndEnvironmentHandlers;
 
+  // Anypoint Login Popup Functions (shared with index.html buttons)
+  window.showAnypointLoginModal = function () {
+    const modal = document.getElementById("anypointLoginModal");
+
+    if (modal) {
+      modal.classList.remove("hidden");
+
+      const clientNameField = document.getElementById("popupClientName");
+      if (clientNameField) clientNameField.focus();
+    }
+  };
+
+  window.closeAnypointLoginModal = function () {
+    const modal = document.getElementById("anypointLoginModal");
+
+    if (modal) {
+      modal.classList.add("hidden");
+      document.getElementById("popupClientName").value = "";
+      document.getElementById("popupClientId").value = "";
+      document.getElementById("popupClientSecret").value = "";
+    }
+  };
+
+  window.loginAnypointFromPopup = async function () {
+    const clientName = document.getElementById("popupClientName").value.trim();
+    const clientId = document.getElementById("popupClientId").value.trim();
+    const clientSecret = document.getElementById("popupClientSecret").value.trim();
+
+    if (!clientName) {
+      alert("Please enter your Connected App client name");
+      return;
+    }
+
+    try {
+      const res = await AuthApi.postConnectedAppLogin({
+        clientName,
+        clientId: clientId || undefined,
+        clientSecret: clientSecret || undefined,
+      });
+
+      const result = res.data;
+
+      if (result.success) {
+        closeAnypointLoginModal();
+
+        if (result.organization) {
+          console.log(
+            `[Connected App] Logged into organization: ${result.organization.name} (${result.organization.id})`,
+          );
+        }
+
+        if (window.checkSession) await window.checkSession();
+
+        if (window.state?.currentEnvId && window.loadApplications) {
+          await window.loadApplications(window.state.currentEnvId);
+        }
+
+        if (window.switchTab) await window.switchTab("mulesoft");
+
+        if (!window.state?.githubAuthenticated && window.showGithubLoginModal) {
+          setTimeout(() => {
+            const loginGithubAlso = confirm(
+              "Anypoint login successful!\n\n" +
+                "Would you also like to login to GitHub to access repositories?\n\n" +
+                "Click OK to login to GitHub\n" +
+                "Click Cancel to continue with Anypoint only",
+            );
+
+            if (loginGithubAlso) window.showGithubLoginModal();
+          }, 1000);
+        }
+      } else {
+        alert("Anypoint login failed: " + (result.error || "Unknown error"));
+      }
+    } catch (err) {
+      alert("Anypoint login failed: " + err.message);
+    }
+  };
+
 })();
