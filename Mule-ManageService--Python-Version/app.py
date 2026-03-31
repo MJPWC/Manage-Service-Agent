@@ -5,23 +5,15 @@ Exact Python replica of the Node.js MuleSoft Get Logs Agent Web Dashboard
 """
 
 import base64
-import json
 import math
 import os
 import re
 import secrets
-import urllib.parse
-
-# Add current directory to Python path for Flask restart
-import sys
-
-# Add current directory to Python path for Flask restart
 import sys
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Dict, Optional
 
 import requests
-import base64
 from dotenv import load_dotenv
 from flask import (
     Flask,
@@ -49,7 +41,6 @@ from src.services.servicenow_connector import get_servicenow_connector
 from src.utils.code_validator import MuleSoftCodeValidator
 from src.utils.context_analyzer import MuleSoftContextAnalyzer
 from src.utils.debug_log_parser import (
-    MuleLogDetector,
     MuleLogParser,
     format_analysis_report,
 )
@@ -151,7 +142,7 @@ def refresh_token_if_needed():
         session["token_created_at"] = datetime.now().isoformat()
         session.modified = True
 
-        print(f"[TOKEN_REFRESH] Token refreshed successfully")
+        print("[TOKEN_REFRESH] Token refreshed successfully")
         return True
 
     except Exception as err:
@@ -365,7 +356,7 @@ def logout():
 @app.route("/api/anypoint/test", methods=["POST"])
 def test_anypoint():
     """Test Anypoint connection"""
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     username = data.get("username")
     password = data.get("password")
 
@@ -418,7 +409,7 @@ def test_anypoint():
 @app.route("/api/anypoint/login", methods=["POST"])
 def anypoint_login():
     """Save Anypoint credentials and login"""
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     username = data.get("username")
     password = data.get("password")
 
@@ -453,7 +444,31 @@ def anypoint_login():
                 timeout=REQUEST_TIMEOUT_SECONDS,
             )
 
-            user_data = me_response.json().get("user", {})
+            if not (200 <= me_response.status_code < 300):
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "error": "Failed to retrieve user profile from Anypoint",
+                            "upstream_status": me_response.status_code,
+                            "upstream_body": me_response.text,
+                        }
+                    ),
+                    502,
+                )
+
+            try:
+                user_data = me_response.json().get("user", {})
+            except ValueError:
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "error": "Anypoint user profile returned invalid JSON",
+                        }
+                    ),
+                    502,
+                )
             org_id = user_data.get("organizationId")
             business_groups = user_data.get("memberOfOrganizations", [])
             
@@ -855,7 +870,11 @@ def get_environments():
         {
             "success": True,
             "environments": [
-                {"id": e["id"], "name": e["name"], "type": e["type"]}
+                {
+                    "id": e.get("id"),
+                    "name": e.get("name"),
+                    "type": e.get("type"),
+                }
                 for e in session.get("environments", [])
             ],
         }
@@ -887,8 +906,6 @@ def get_local_applications():
     """Get local file as application"""
     if not session.get("local_file_loaded"):
         return jsonify({"success": False, "error": "No local file loaded"}), 401
-
-    local_logs = session.get("local_logs", [])
 
     return jsonify(
         {
@@ -1513,7 +1530,7 @@ def fetch_github_file_content():
                     print(f"⏭️ Skipping: {file_path} (does not start with src/main/mule)")
                     continue
                 
-                print(f"✅ Processing this item (starts with src/main/mule)")
+                print("✅ Processing this item (starts with src/main/mule)")
                 
                 # Step 3: Fetch file content directly using item["url"] without modification
                 content_url = direct_url
@@ -1532,7 +1549,7 @@ def fetch_github_file_content():
                 if content_response.status_code == 200:
                     try:
                         content_data = content_response.json()
-                        print(f"✅ Successfully parsed JSON response")
+                        print("✅ Successfully parsed JSON response")
                         print(f"🔍 Response data keys: {list(content_data.keys())}")
                         
                         content = content_data.get("content", "")
@@ -1543,7 +1560,7 @@ def fetch_github_file_content():
                         if content and content_data.get("encoding") == "base64":
                             try:
                                 content = base64.b64decode(content).decode('utf-8')
-                                print(f"✅ Successfully decoded base64 content")
+                                print("✅ Successfully decoded base64 content")
                             except Exception as decode_error:
                                 print(f"⚠️ Base64 decode error: {decode_error}")
                                 content = content
@@ -1573,7 +1590,7 @@ def fetch_github_file_content():
                     try:
                         error_data = content_response.json()
                         print(f"❌ Error response: {error_data}")
-                    except:
+                    except Exception:
                         print(f"❌ Raw response text: {content_response.text[:500]}")
                     print(f"❌ Failed URL was: {content_url}")
                     
@@ -2380,7 +2397,7 @@ def multi_file_analysis():
                         print(f"⚠️ Invalid file item type: {type(item)}")
             elif isinstance(file_contents, dict):
                 # Handle dictionary structure (for GitHub uploads)
-                print(f"📋 Processing dictionary structure")
+                print("📋 Processing dictionary structure")
                 for file_name in file_names:
                     # Safety check: ensure file_contents is actually a dict
                     if isinstance(file_contents, dict) and file_name in file_contents:
@@ -2469,7 +2486,7 @@ def multi_file_analysis():
             llm_manager = get_llm_manager()
             prompt = "\n".join(prompt_parts)
             
-            print(f"🤖 Calling LLM for multi-file analysis...")
+            print("🤖 Calling LLM for multi-file analysis...")
             print(f"📋 Prompt length: {len(prompt)} characters")
             print(f"📋 Files to analyze: {len(reference_files)}")
             
@@ -2479,7 +2496,7 @@ def multi_file_analysis():
                 "multi-file-analysis"
             )
 
-            print(f"✅ LLM response received successfully")
+            print("✅ LLM response received successfully")
             print(f"📋 Response length: {len(llm_response)} characters")
 
             if llm_response:
@@ -2497,14 +2514,14 @@ def multi_file_analysis():
                     import json
                     structured_response = json.loads(cleaned_response)
                     analysis_result.update(structured_response)
-                    print(f"✅ Successfully parsed structured response")
+                    print("✅ Successfully parsed structured response")
                 except Exception as parse_error:
                     print(f"⚠️ Could not parse structured response: {parse_error}")
                     print(f"📋 Cleaned response preview: {cleaned_response[:200]}...")
                     # Keep the raw text as analysis if JSON parsing fails
                     analysis_result["analysis"] = llm_response
             else:
-                print(f"❌ Empty LLM response")
+                print("❌ Empty LLM response")
                 analysis_result["analysis"] = "No analysis available - LLM returned empty response"
 
         return jsonify(analysis_result)
@@ -2514,21 +2531,6 @@ def multi_file_analysis():
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "error": str(err)}), 500
-
-
-def fetch_github_file_content(owner, repo, file_path):
-    """Helper function to fetch file content from GitHub"""
-    try:
-        # Use existing GitHub API service
-        github_service = get_github_service()
-        if not github_service:
-            return None
-
-        file_content = github_service.get_file_content(owner, repo, file_path)
-        return file_content
-    except Exception as e:
-        print(f"Error fetching GitHub file {owner}/{repo}/{file_path}: {e}")
-        return None
 
 
 @app.route("/api/github/apply-changes", methods=["POST"])
@@ -3200,7 +3202,6 @@ def update_correlation_id_status(env_id, event_id):
         if not status:
             return jsonify({"success": False, "error": "Status is required"}), 400
 
-        storage = get_correlation_id_storage()
         # Note: The current storage doesn't have a status update method,
         # but this endpoint is needed for frontend compatibility
         # In the future, we might want to add status tracking to correlation IDs

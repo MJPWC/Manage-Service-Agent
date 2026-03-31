@@ -5,7 +5,7 @@ Provides syntax validation, compilation checking, and compatibility verification
 
 import xml.etree.ElementTree as ET
 import re
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple
 from dataclasses import dataclass
 
 @dataclass

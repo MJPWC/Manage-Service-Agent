@@ -10,7 +10,6 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from src.utils.log_parser import LogParser
-import re
 
 # Simple test
 SIMPLE_EXCEPTION = """2026-02-11T11:30:44.844Z ERROR [sf-agent-api] Agent-API-main - N/A

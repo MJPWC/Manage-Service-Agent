@@ -4,9 +4,8 @@ Base LLM Client — shared system prompts, ruleset loading, and
 the analyze_file_content / analyze_error helpers used by every provider.
 """
 
-import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from dotenv import load_dotenv
 
@@ -208,8 +207,6 @@ CRITICAL OUTPUT REQUIREMENTS:
 {code_fix_req}- Always provide at least 2 numbered Immediate Actions
 - Reference specific file names and line numbers extracted from the error when available
 - Use the FlowStack to trace the exact error propagation path"""
-
-            file_ext = reference_file_extension.lower() if reference_file_extension else "text"
 
             user_content_parts = [
                 f"**User Question:** {user_prompt}",

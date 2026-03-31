@@ -4,7 +4,7 @@ LLM Manager for handling multiple LLM providers with fallback support
 """
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from dotenv import load_dotenv
 
@@ -40,7 +40,6 @@ class LLMManager:
         for config in client_configs:
             key = config["key"]
             client_class = config["class"]
-            client_config = config["config"]
             priority = config["priority"]
 
             # Check if API key is available (skip if not)
@@ -178,7 +177,7 @@ class LLMManager:
                         .strip()
                     )
                     print(f"📤 Provider {provider} response preview: {preview}")
-                except:
+                except Exception:
                     pass
 
                 return result
@@ -225,7 +224,7 @@ class LLMManager:
                         .strip()
                     )
                     print(f"📤 Fallback {key} response preview: {preview}")
-                except:
+                except Exception:
                     pass
 
                 return result
