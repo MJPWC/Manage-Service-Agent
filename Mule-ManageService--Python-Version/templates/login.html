@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ManageServiceAgent · Login</title>
+<link rel="stylesheet" href="/static/css/login.css">
+<link rel="stylesheet" href="/static/css/github.css">
+</head>
+<body>
+<div class="shell">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="logo">Manage<span>Service</span><span>Agent</span></span></div>
+    <div class="ver">v1.0</div>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+    <div class="login-card">
+
+      <!-- Left branding -->
+      <div class="left">
+        <div>
+          <div class="left-logo">Manage<span>Service</span><span>Agent</span></div>
+          <div class="left-tagline">Intelligent error analysis for MuleSoft integration pipelines.</div>
+          <div class="divider"></div>
+          <div class="section-label">What this tool does</div>
+          <div class="feat-list">
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--acc)"></div>
+              <div class="feat-txt">Pull logs from Anypoint or upload a local file</div>
+            </div>
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--grn)"></div>
+              <div class="feat-txt">AI-powered root cause analysis per error</div>
+            </div>
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--amb)"></div>
+              <div class="feat-txt">Auto-create ServiceNow tickets</div>
+            </div>
+            <div class="feat">
+              <div class="feat-dot" style="background:var(--pur)"></div>
+              <div class="feat-txt">Generate fixes and push to GitHub branch</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="section-label">Supported sources</div>
+          <div class="src-list">
+            <div class="src">
+              <div class="src-icon" style="background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.2)">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="#2563EB"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+              </div>
+              Anypoint Platform API
+            </div>
+            <div class="src">
+              <div class="src-icon" style="background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.2)">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="#16a34a"><path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8z"/></svg>
+              </div>
+              Local log file (.log, .txt)
+            </div>
+            <div class="src">
+              <div class="src-icon" style="background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.2)">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="#7c3aed"><path fill-rule="evenodd" d="M1.5 2.75a.25.25 0 01.25-.25h12.5a.25.25 0 01.25.25v8.5a.25.25 0 01-.25.25h-6.5a.75.75 0 00-.53.22L4.5 14.44v-2.19a.75.75 0 00-.75-.75h-2a.25.25 0 01-.25-.25v-8.5zM1.75 1A1.75 1.75 0 000 2.75v8.5C0 12.216.784 13 1.75 13H3v1.543a1.457 1.457 0 002.487 1.03L7.92 13h6.83A1.75 1.75 0 0016.5 11.25v-8.5A1.75 1.75 0 0014.75 1H1.75z"/></svg>
+              </div>
+              Connected App (OAuth)
+            </div>
+          </div>
+        </div>
+        <div class="left-footer">ManageServiceAgent.io · v2.1.0</div>
+      </div>
+
+      <!-- Right form -->
+      <div class="right">
+        <div class="form-title">Connect your log source</div>
+        <div class="form-sub">Choose how to bring in your MuleSoft logs to begin analysis</div>
+
+        <!-- GitHub optional-connect UI: markup injected by static/js/github.js -->
+        <div id="gh-panel" class="github-login-panel" style="display:none" aria-hidden="true"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn on" id="t0" onclick="switchTab(0)">Anypoint Platform</button>
+          <button class="tab-btn" id="t1" onclick="switchTab(1)">Connected App</button>
+          <button class="tab-btn" id="t2" onclick="switchTab(2)">Local file</button>
+        </div>
+
+        <!-- Pane 0: Anypoint -->
+        <div id="p0">
+          <div class="row">
+            <div>
+              <label class="fl">Username</label>
+              <input class="fi" type="email" id="anypointUsername" placeholder="you@company.com">
+            </div>
+            <div>
+              <label class="fl">Password</label>
+              <input class="fi" type="password" id="anypointPassword" placeholder="••••••••">
+            </div>
+          </div>
+          <div class="btn-area">
+            <button class="btn pri full" style="padding:10px" id="anypointLoginBtn" onclick="loginAnypoint()">
+              <span class="btn-text">Connect to Anypoint →</span>
+              <span class="btn-loading" style="display:none;">Connecting...</span>
+            </button>
+          </div>
+          <div id="anypointStatus" class="status-message" style="display:none;"></div>
+        </div>
+
+        <!-- Pane 1: Connected App -->
+        <div id="p1" style="display:none">
+          <div class="info-box">
+            Use a Connected App when your org restricts direct username/password login.
+            Create one in Anypoint Access Management → Connected Apps.
+          </div>
+          <label class="fl">Client Name</label>
+          <input class="fi" id="clientName" placeholder="my-connected-app">
+          <div id="newClientFields" style="display:none;">
+            <div class="info-box" style="margin-top:12px;margin-bottom:8px;">
+              <strong>First time setup?</strong> Provide Client ID and Secret to store for future use.
+            </div>
+            <label class="fl">Client ID</label>
+            <input class="fi" id="clientId" placeholder="a1b2c3d4e5f6...">
+            <label class="fl">Client Secret</label>
+            <input class="fi" type="password" id="clientSecret" placeholder="••••••••••••••">
+          </div>
+          <div class="btn-area">
+            <button class="btn pri full" style="padding:10px" id="connectedAppLoginBtn" onclick="loginConnectedApp()">
+              <span class="btn-text">Authenticate →</span>
+              <span class="btn-loading" style="display:none;">Authenticating...</span>
+            </button>
+            <button class="btn" style="padding:8px;font-size:12px;" onclick="toggleNewClientFields()">
+              <span id="toggleText">+ Add new client</span>
+            </button>
+          </div>
+          <div id="connectedAppStatus" class="status-message" style="display:none;"></div>
+        </div>
+
+        <!-- Pane 2: Local file -->
+        <div id="p2" style="display:none">
+          <div class="upload-zone" id="dropzone"
+            ondragover="this.style.borderColor='var(--acc)'"
+            ondragleave="this.style.borderColor=''">
+            <div class="upload-icon">
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--mut)"><path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8z"/></svg>
+            </div>
+            <div class="upload-title">Drop your log file here</div>
+            <div class="upload-sub">Supports .log and .txt — MuleSoft runtime format</div>
+            <button class="btn" style="padding:6px 16px;font-size:12px" onclick="document.getElementById('ffile').click()">Browse files</button>
+            <input id="ffile" type="file" accept=".log,.txt" style="display:none" onchange="fileChosen(this)">
+          </div>
+          <div id="file-chosen" style="display:none;margin-top:10px">
+            <div class="file-card">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--grn)"><path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8z"/></svg>
+              <div style="flex:1">
+                <div class="file-name" id="fname">sf-system-api.log</div>
+                <div class="file-ready">Ready to parse</div>
+              </div>
+              <button class="btn" style="font-size:11px;padding:4px 10px" onclick="clearFile()">Remove</button>
+            </div>
+            <div class="btn-area">
+              <button class="btn pri full" style="padding:10px" onclick="uploadLocalFile()">Parse log file →</button>
+            </div>
+          </div>
+          <div class="file-hint">
+            Local file mode shows a single-app view. GitHub and Anypoint connections are not
+            required — your file stays in the browser and is never uploaded to a server.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="bottombar">Page 1 · Login — switch tabs to explore all three login modes</div>
+
+</div>
+
+<script src="/static/js/auth-api.js"></script>
+<script src="/static/js/github.js"></script>
+<script src="/static/js/login.js"></script>
+</body>
+</html>
