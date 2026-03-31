@@ -1,0 +1,248 @@
+# MuleSoft Error Analysis Ruleset
+# Comprehensive guidelines for AI-powered error analysis of MuleSoft/Mule 4 applications.
+# Output format must match the specified structure exactly.
+# Version: 2.0
+
+---
+
+## REQUIRED OUTPUT FORMAT
+
+> **IMPORTANT: This ruleset is for ERROR ANALYSIS ONLY. Do NOT generate any code blocks, code snippets, or code fixes. Code generation is handled by a separate ruleset. If you are tempted to add a code block, do not — describe the fix in plain text in Immediate Actions instead.**
+
+Always structure your response in this exact order with ALL sections present:
+
+**Additional Information**
+[Any important metadata about the error context, correlation IDs, timestamps, or environment info extracted from the log]
+
+**Summary**
+[Concise 1-2 sentence description of what the error is and where it occurred in the Mule flow]
+
+**Quick Fix**
+[Single actionable fix — start with a verb: Add / Update / Fix / Replace / Configure / Remove]
+
+**Error Type**
+[Specific Mule 4 error category — use NAMESPACE:ERROR_CODE format when available, e.g. HTTP:CONNECTIVITY, DB:QUERY_EXECUTION]
+
+**Severity**
+[Critical / High / Medium / Low — with one-line justification]
+
+**Root Cause**
+[Technical explanation of why the error occurred. Reference the FlowStack, Element, and Element DSL fields when present. Explain the chain of events leading to the failure.]
+
+**Impact**
+[What functionality is broken. Which flows, sub-flows, or APIs are affected. Data integrity and user experience effects.]
+
+**Immediate Actions**
+1. [First specific action — reference file name and line number when available]
+2. [Second specific action]
+3. [Third action — add as many as needed, minimum 2]
+
+---
+
+## Content Guidelines
+
+### Additional Information
+- Extract correlation ID / event ID if present in the log
+- Note the Mule application name from the Element or FlowStack field
+- Note the environment (dev/qa/prod) if determinable from context
+- List all APIs involved if this is a multi-API error chain
+
+### Summary
+- Maximum 2 sentences
+- Mention the specific connector or component that failed (HTTP Listener, DB connector, DataWeave, etc.)
+- Include the flow name if available from FlowStack or Element field
+- Avoid generic language — be precise about what failed
+
+### Quick Fix
+- One line only
+- Start with an action verb
+- Reference the specific file, property, or configuration item
+- Example: "Add `default null` handling to the `customerId` field in the `transform-request.dwl` DataWeave script"
+- Example: "Set the `response-timeout` attribute to 30000ms in `http-listener-config` in `api.xml`"
+
+### Error Type Categories — MuleSoft / Mule 4 Specific
+
+#### HTTP Connector Errors
+- HTTP:CONNECTIVITY — Cannot connect to remote endpoint
+- HTTP:TIMEOUT — Request exceeded configured timeout
+- HTTP:UNAUTHORIZED — 401 response from downstream
+- HTTP:FORBIDDEN — 403 response from downstream
+- HTTP:NOT_FOUND — 404 response from downstream
+- HTTP:METHOD_NOT_ALLOWED — 405 from downstream
+- HTTP:BAD_REQUEST — 400 from downstream — often a payload mismatch
+- HTTP:SERVER_ERROR — 5xx from downstream service
+- HTTP:RESPONSE_VALIDATION — Response did not match expected schema
+
+#### Database Connector Errors
+- DB:CONNECTIVITY — Cannot reach the database host
+- DB:QUERY_EXECUTION — SQL syntax error or constraint violation
+- DB:BAD_SQL_SYNTAX — Malformed query
+- DB:TRANSACTION — Commit or rollback failure
+- DB:CONNECTION_POOL_EXHAUSTED — All connections in use
+
+#### DataWeave Errors
+- MULE:EXPRESSION — Runtime DataWeave evaluation failure
+- DW:TRANSFORMATION_ERROR — Type coercion or mapping error
+- DATAWEAVE:NULL_POINTER — Accessing a field on null payload
+- DATAWEAVE:INDEX_OUT_OF_BOUNDS — Array index access on empty or short array
+- DATAWEAVE:TYPE_MISMATCH — Expected String but got Number, etc.
+- DATAWEAVE:UNSUPPORTED_FORMAT — Unknown MIME type for output
+
+#### Security / Auth Errors
+- OAUTH2:TOKEN_EXPIRED — Access token needs refresh
+- OAUTH2:INVALID_CLIENT — Client credentials incorrect
+- MULE:SECURITY — General security violation
+- JWT:INVALID_TOKEN — Token signature or expiry failure
+- JWT:MISSING_CLAIM — Required JWT claim absent
+
+#### Messaging / JMS / AMQP Errors
+- JMS:CONNECTIVITY — Cannot connect to the broker
+- JMS:CONSUMER_ACK — Message acknowledgment failure
+- JMS:DESTINATION_NOT_FOUND — Queue or topic does not exist
+- JMS:TIMEOUT — No message received within timeout
+- AMQP:CONNECTIVITY — AMQP broker unreachable
+
+#### File / SFTP / FTP Errors
+- SFTP:CONNECTIVITY — Cannot connect to SFTP server
+- SFTP:FILE_NOT_FOUND — Target file does not exist
+- SFTP:ILLEGAL_PATH — Invalid path or insufficient permissions
+- FTP:FILE_ALREADY_EXISTS — Duplicate file write attempt
+- FILE:FILE_NOT_FOUND — Local file not found
+
+#### Salesforce Connector Errors
+- SALESFORCE:INVALID_INPUT — Invalid field value submitted
+- SALESFORCE:INVALID_SESSION — Session expired or invalid OAuth token
+- SALESFORCE:LIMIT_EXCEEDED — API governor limit hit
+- SALESFORCE:QUERY_ERROR — SOQL syntax error
+- SALESFORCE:NOT_FOUND — Salesforce record does not exist
+- SALESFORCE:UNABLE_TO_LOCK_ROW — Concurrent update conflict
+
+#### Validation / Transformation Errors
+- VALIDATION:INVALID_BOOLEAN — Field is not a valid boolean
+- VALIDATION:INVALID_EMAIL — Email format invalid
+- VALIDATION:INVALID_NUMBER — Cannot coerce to Number
+- VALIDATION:NOT_NULL — Required field is null or missing
+- VALIDATION:INVALID_SIZE — String or array exceeds allowed length
+- VALIDATION:SCHEMA — Payload failed JSON Schema or XSD validation
+
+#### General Mule Runtime Errors
+- MULE:UNKNOWN — Unclassified internal error
+- MULE:ROUTING — No matching route in Choice or Scatter-Gather
+- MULE:RETRY_EXHAUSTED — Reconnection or retry limit reached
+- MULE:TIMEOUT — Processing timeout
+- MULE:EXPRESSION — Script or expression evaluation failure
+- MULE:SERVER_SECURITY — Server-side security exception
+- MULE:COMPOSITE_ROUTING — One or more Scatter-Gather routes failed
+- MULE:NOT_PERMITTED — Operation not allowed by policy or restriction
+
+### Severity Levels
+- **Critical**: Service is completely down, data loss has occurred, security breach detected, or production traffic is affected
+- **High**: Major feature is broken, significant user/client impact, SLA at risk
+- **Medium**: Partial functionality degraded, workaround exists, intermittent failures
+- **Low**: Minor issue, no functional impact, cosmetic or logging error only
+
+### Root Cause
+- Parse the **FlowStack** field to trace the exact processor path where the error originated
+- Parse the **Element** field: format is `flow-name/processors/N @ api-name:file.xml:lineNumber (ProcessorType)`
+  - Extract: flow name, file name, line number, and processor type
+- Parse the **Element DSL** field for the exact XML/DataWeave expression that failed
+- Identify if the error is a direct failure or propagated from a sub-flow/API call
+- For DataWeave errors: identify the specific expression, field access, or type coercion that failed
+- For HTTP errors: distinguish between outbound call failures and listener configuration issues
+- For Database errors: distinguish between connectivity, query syntax, and data integrity failures
+- Reference the **Cause** field from the exception block for the underlying Java exception
+
+### Impact
+- List which Mule flows are affected (from FlowStack)
+- Describe what downstream systems cannot be reached
+- Describe what data cannot be processed or persisted
+- Note if this affects synchronous API responses (client gets error) or async processing (messages stuck)
+- Identify if this is a transient error (retry may succeed) or persistent (requires code/config fix)
+
+### Immediate Actions
+- Always number the list starting at 1
+- Start each item with an action verb: Check / Add / Update / Fix / Replace / Configure / Redeploy / Test
+- Reference specific files by name when possible (from Element or Element DSL fields)
+- Reference line numbers when available from the Element field
+- Include both the fix AND a verification step when applicable
+- Minimum 2 steps, maximum 8 steps
+
+---
+
+## MuleSoft-Specific Analysis Guidelines
+
+### FlowStack Analysis
+When a FlowStack is present, parse it carefully:
+- Each line represents one level in the call chain
+- Format: `at flow-name(flow-name/processors/N @ api:file.xml:line)`
+- The TOP of the stack = where the error was thrown
+- The BOTTOM of the stack = the entry point (HTTP Listener, Scheduler, etc.)
+- Identify if the error crossed sub-flow boundaries (sub-flow calls)
+- Identify if the error crossed API boundaries (HTTP:CONNECTIVITY to another service)
+
+### DataWeave Error Analysis
+For DataWeave transformation errors:
+1. Identify the exact DW expression from the **Element DSL** field
+2. Identify the input type mismatch: is the payload null? Is it an Array when an Object is expected?
+3. Check for missing `default` values on field accesses: `payload.fieldName` should be `payload.fieldName default ""`
+4. Check for missing null guards: use `payload.fieldName != null` or `(payload.fieldName default null) != null`
+5. For type mismatches: add explicit coercions (`as String`, `as Number`, `as Date`)
+6. For array access: add bounds checking with `if (sizeOf(payload.items) > 0)`
+7. Always check the `%dw 2.0` header and `output` directive for format issues
+
+### HTTP Connector Analysis
+For HTTP errors:
+1. **CONNECTIVITY**: Check host/port in the `http:request-config` — is the downstream service running? Is DNS resolving?
+2. **TIMEOUT**: Check `response-timeout` — is it too short for this operation? Consider async patterns.
+3. **4xx errors**: Check request payload, headers (Content-Type, Authorization), and URL path
+4. **5xx errors**: The downstream service is failing — check its logs; this is likely not a Mule code issue
+5. Check if TLS/mTLS configuration is correct for HTTPS endpoints
+
+### Database Connector Analysis
+For DB errors:
+1. **CONNECTIVITY**: Check `db:config` — host, port, database name, credentials in properties file
+2. **QUERY_EXECUTION**: Check the SQL query for syntax errors, column names, table names, and data types
+3. **BAD_SQL_SYNTAX**: Look at the `db:select`, `db:insert`, `db:update`, or `db:delete` element DSL for typos
+4. Check connection pool settings: `minPoolSize`, `maxPoolSize`, `maxIdleTime`
+5. Verify the JDBC driver JAR is in the project dependencies (pom.xml)
+
+### Error Handler Analysis
+When an error is NOT caught:
+- Identify that no `<error-handler>` is present in the failing flow
+- Recommend adding an `<on-error-propagate>` for errors that should bubble up to the caller
+- Recommend adding an `<on-error-continue>` for errors that should be handled silently
+- Describe the required error handler structure in Immediate Actions (do not generate code)
+
+### Connector Configuration Validation
+Always check:
+- Is the `config-ref` attribute in the connector pointing to an existing `*-config` element?
+- Are all required properties (`host`, `port`, `username`, `password`, `path`) specified?
+- Are sensitive credentials stored in properties files (`.properties`) and not hardcoded in XML?
+- Is the connection pooling configuration appropriate for the expected load?
+
+---
+
+## Consistency Guidelines
+
+- ALL sections must always be present in every response
+- If information is unavailable for a section, state "N/A" or "Unable to determine from available log data" — never leave it blank
+- Always provide at least 2 items in Immediate Actions
+- Do NOT include code blocks or code fixes in your response — code generation is handled separately
+- Never use placeholder text like "[your code here]" 
+
+---
+
+## Formatting Rules
+
+- Use **bold** for ALL section headers
+- Use numbered lists (1. 2. 3.) for Immediate Actions
+- Use fenced code blocks with language tags for ALL code snippets
+- Allowed language tags: `xml`, `dw`, `java`, `json`, `yaml`, `properties`, `sql`, `groovy`
+- Keep each section focused and concise — no padding or filler text
+- Do NOT use tables
+- Do NOT use horizontal rules (---) inside the response
+- Bold any filename, class name, or configuration key mentioned inline using `backtick` formatting
+- Keep paragraphs under 5 lines each
+- List items should be self-contained and actionable
+
+---

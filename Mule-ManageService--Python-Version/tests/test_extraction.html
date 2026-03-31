@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Element Extraction</title>
+</head>
+<body>
+  <h1>Test Element Extraction</h1>
+  <p>Testing extraction from Element field format: "invoke-ais-employment-sapi-for-create-referral/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:51"</p>
+  
+  <script>
+    function extractApiNameFromElement(elementStr) {
+      if (!elementStr || typeof elementStr !== 'string') {
+        return 'Unknown API';
+      }
+      
+      // Pattern matches: @ api-name:file.xml:line (description)
+      const match = elementStr.match(/@([^:]+):/);
+      if (match && match[1]) {
+        return match[1];
+      }
+      
+      return 'Unknown API';
+    }
+
+    function extractFilenameFromElement(elementStr) {
+      if (!elementStr || typeof elementStr !== 'string') return '';
+
+      const afterAt = elementStr.includes('@') ? elementStr.split('@').pop().trim() : elementStr.trim();
+      const cleaned = afterAt.replace(/\s*\([^)]*\)\s*$/, '').trim();
+
+      const parts = cleaned.split(':').map(p => p.trim()).filter(Boolean);
+      let candidate = parts.find(p => /\.[a-zA-Z0-9]+$/.test(p) && !/^\d+$/.test(p));
+      
+      if (!candidate && parts.length > 0) {
+        const filenameMatch = parts[0].match(/([^\/\\:]+\.[a-zA-Z0-9]+)$/);
+        if (filenameMatch) {
+          candidate = filenameMatch[1];
+        } else {
+          const lastColonIndex = parts[0].lastIndexOf(':');
+          if (lastColonIndex !== -1 && lastColonIndex < parts[0].length - 1) {
+            const afterColon = parts[0].substring(lastColonIndex + 1).trim();
+            if (afterColon && /\.[a-zA-Z0-9]+$/.test(afterColon)) {
+              candidate = afterColon;
+            }
+          }
+          if (!candidate) {
+            candidate = parts[0];
+          }
+        }
+      }
+
+      if (!candidate) {
+        candidate = parts.length ? parts[0] : cleaned;
+      }
+
+      const pathParts = candidate.split(/[/\\]/);
+      return (pathParts[pathParts.length - 1] || '').trim();
+    }
+    
+    const testElement = "invoke-ais-employment-sapi-for-create-referral/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:51 (Request To AIS Employment SAPI Create Referral)";
+    
+    const apiName = extractApiNameFromElement(testElement);
+    const filename = extractFilenameFromElement(testElement);
+    
+    console.log("Test Element:", testElement);
+    console.log("API Name:", apiName);
+    console.log("Filename:", filename);
+    
+    document.write("<pre>");
+    document.write("Element: " + testElement + "\n\n");
+    document.write("Expected API Name: msd-sep-accint-job-application-papi-v1\n");
+    document.write("Actual API Name: " + apiName + "\n");
+    document.write("✓ API Name Correct: " + (apiName === "msd-sep-accint-job-application-papi-v1" ? "YES" : "NO") + "\n\n");
+    document.write("Expected Filename: create-referral.xml\n");
+    document.write("Actual Filename: " + filename + "\n");
+    document.write("✓ Filename Correct: " + (filename === "create-referral.xml" ? "YES" : "NO") + "\n");
+    document.write("</pre>");
+  </script>
+</body>
+</html>

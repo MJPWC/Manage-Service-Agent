@@ -1,0 +1,1393 @@
+POST /api/clients/623173178/referrals HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: 8-4868-aa15-678004c1d406
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: 435e7780-7138-4277-b791-8799ada25f30
+tracestate: 
+traceparent: 00-a57d6077e120a451cbd26fb1338b44de-40f2e68d00c5edac-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+Content-Length: 131
+
+{
+  "interviewDateTime": "2026-03-18T08:30:00.000",
+  "modifiedByUser": "EReadWri",
+  "outcome": "RTF",
+  "vacancyId": "99660880"
+} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.834Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:435e7780-7138-4277-b791-8799ada25f30 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.02 SelectorRunner - REQUESTER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: 8-4868-aa15-678004c1d406
+Content-Type: application/json; charset=UTF-8
+Content-Length: 218
+Date: Fri, 06 Mar 2026 00:51:23 GMT
+x-correlation-id: 435e7780-7138-4277-b791-8799ada25f30
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "500",
+  "responseId": "435e7780-7138-4277-b791-8799ada25f30",
+  "error": {
+    "detail": "There was a problem while trying to create referral in AIS",
+    "timestamp": "2026-03-06T00:51:23.829"
+  }
+} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.835Z ERROR [9hfnm] DefaultExceptionListener event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6871: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - 
+********************************************************************************
+Message               : HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/623173178/referrals' failed: internal server error (500).
+Element               : call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral)
+Element DSL           : <http:request method="POST" doc:name="Request To AIS Employment SAPI Create Referral" doc:id="b0108da0-2f4b-44a5-ab73-4d9684f0087d" config-ref="aisEmploymentSapiHttpRequestConfig" path="${internal.ais-employment-sapi.endpoints.createReferral}" sendCorrelationId="ALWAYS" correlationId="#[correlationId]">
+<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-type": attributes.headers."content-type",
+	"Accept": attributes.headers."accept",
+	"x-transaction-id": attributes.headers."x-transaction-id",
+	"client_id" : p('secure::internal.mule.clientId'),
+	"client_secret": p('secure::internal.mule.clientSecret'),
+	"x-channel-id": p('internal.ais-employment-sapi.sourceSystem'),
+	"x-service-id": attributes.headers."x-service-id",
+	"Content-type": attributes.headers."content-type"
+}]]]></http:headers>
+<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"clientNumber" : attributes.uriParams.clientNumber default ""
+}]]]></http:uri-params>
+</http:request>
+Error type            : HTTP:INTERNAL_SERVER_ERROR
+FlowStack             : at call-ais-employment-sapi-for-create-referral(call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral))
+at invoke-endpoint-until-successful(invoke-endpoint-until-successful/processors/5/processors/0/processors/0/processors/0 @ msd-sep-accint-job-application-papi-v1:retryable-invoke.xml:46 (Call vars.invokeEndpointFlow))
+at invoke-ais-employment-sapi-for-create-referral(invoke-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:50 (Call invoke-endpoint-until-successful))
+at create-referral(create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:19 (Call invoke-ais-employment-sapi-for-create-referral))
+at post:\clients\(clientNumber)\referrals:application\json:apiConfig(post:\clients\(clientNumber)\referrals:application\json:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:50 (Call create-referral))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.835Z ERROR [9hfnm] CustomLogger event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6871: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - A transient error occurred while invoking endpoint (HTTP:INTERNAL_SERVER_ERROR HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/623173178/referrals' failed: internal server error (500).) - triggering re-try channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.836Z ERROR [9hfnm] UntilSuccessfulRouter event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6871: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Retry attempts exhausted. Failing... channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.836Z ERROR [9hfnm] CustomLogger event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6871: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Exhausted re-tries invoking endpoint (MULE:RETRY_EXHAUSTED HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/623173178/referrals' failed: internal server error (500).) - giving up channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.836Z DEBUG [9hfnm] CustomLogger event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6871: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Received response from FAILED endpoint invocation in 24586 ms channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.838Z ERROR [9hfnm] CustomLogger event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6871: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Error calling Backend API: EXT:CANT_CALL_AIS_SAPI There was a problem while trying to access AIS Employment SAPI for referral creation << {
+  statusCode: "500",
+  responseId: "435e7780-7138-4277-b791-8799ada25f30",
+  error: {
+    detail: "There was a problem while trying to create referral in AIS",
+    timestamp: "2026-03-06T00:51:23.829"
+  }
+} as Object {encoding: "UTF-8", mediaType: "application/json; charset=UTF-8", mimeType: "application/json"} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.838Z ERROR [9hfnm] DefaultExceptionListener event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6871: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - 
+********************************************************************************
+Message               : There was a problem while trying to access AIS Employment SAPI for referral creation
+Element               : invoke-ais-employment-sapi-for-create-referral/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:51 (Successful else raise EXT:CANT_CALL_AIS_SAPI)
+Element DSL           : <validation:is-true doc:name="Successful else raise EXT:CANT_CALL_AIS_SAPI" doc:id="ef7189f1-3fa0-491f-9fd5-10a826740753" expression="#[vars.successful]" message="#[p('messages.createReferralBackendError')]">
+<error-mapping targetType="EXT:CANT_CALL_AIS_SAPI"></error-mapping>
+</validation:is-true>
+Error type            : EXT:CANT_CALL_AIS_SAPI
+FlowStack             : at invoke-ais-employment-sapi-for-create-referral(invoke-ais-employment-sapi-for-create-referral/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:51 (Successful else raise EXT:CANT_CALL_AIS_SAPI))
+at create-referral(create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:19 (Call invoke-ais-employment-sapi-for-create-referral))
+at post:\clients\(clientNumber)\referrals:application\json:apiConfig(post:\clients\(clientNumber)\referrals:application\json:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:50 (Call create-referral))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.839Z DEBUG [9hfnm] CustomLogger event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6869: [msd-sep-accint-job-application-papi-v1].api-error-handler.CPU_INTENSIVE @49511122 - API error will be returned channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.839Z DEBUG [9hfnm] CustomLogger event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6869: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - API response returned channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.841Z DEBUG [9hfnm] CustomLogger event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6870: [msd-sep-accint-job-application-papi-v1].api-error-handler/8/processors/2 @1313e1fa - None to alert channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.841Z ERROR [9hfnm] DefaultExceptionListener event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6869: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - 
+********************************************************************************
+Message               : There was a problem while trying to access AIS Employment SAPI for referral creation
+Element               : (None)
+Element DSL           : (None)
+Error type            : EXT:CANT_CALL_AIS_SAPI
+FlowStack             : (None)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:51:23.844Z DEBUG [9hfnm] apiHttpListenerConfig event:435e7780-7138-4277-b791-8799ada25f30 [MuleRuntime].uber.6869: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - LISTENER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: 8-4868-aa15-678004c1d406
+x-ratelimit-remaining: 59
+x-ratelimit-limit: 60
+x-ratelimit-reset: 671
+Content-Type: application/json; charset=UTF-8
+Content-Length: 244
+Date: Fri, 06 Mar 2026 00:51:23 GMT
+Connection: close
+
+{
+  "statusCode": "500",
+  "responseId": "435e7780-7138-4277-b791-8799ada25f30",
+  "error": {
+    "detail": "There was a problem while trying to access AIS Employment SAPI for referral creation",
+    "timestamp": "2026-03-06T00:51:23.839"
+  }
+} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=8-4868-aa15-678004c1d406
+2026-03-06T00:57:15.418Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.04 SelectorRunner - LISTENER
+GET /api/dtrd-status?client=623173178 HTTP/1.1
+x-transaction-id: 9-4462-9637-6bf0b141427f
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-service-id: Salesforce
+x-channel-id: Salesforce
+Content-Type: application/json
+x-consumer-key: 003c7d6a01e84534885be5439bc602b9
+grant_type: client_credentials
+Authorization: Bearer eyJraWQiOiJNdWxlc29mdEpXVFNTQ2VydCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJhdWQiOiI5YTFjM2Q0OS0wY2NlLTQ2YjEtOGM3NC0xN2ExZGIyNThkY2EiLCJuYmYiOjE3NzI3NTg2MzUsImF6cCI6IjAwM2M3ZDZhMDFlODQ1MzQ4ODViZTU0MzliYzYwMmI5Iiwicm9sZXMiOiJbXCJzZXAuZGVzLm0ybTp3cml0ZVwiLFwic2VwLmRlcy5tMm06cmVhZFwiXSIsImV4cCI6MTc3Mjc1ODc1NSwiaWF0IjoxNzcyNzU4NjM1fQ.QAgM15zhk6Fj-JnZraD_zXfx6gKE5JoVTicDaALwE35YkMd50CIRz10z53s6cxwjjEh8nrDECyINE-fOc2zcgoXMR0VMOmlXAqMa9xWgzGyo4hX9brACPd2YuM4llU1uB8qZaNANQRy_-UKlUrHlYKucTT4mf_9dsTtfNUZa-0wDUSi_k4CCBIYlqEx995rKQbiUwGaiV_3CacZXyU3Iz-XZFpCtf2ooW5UeYomVF5JfbwoBCXfPYEaaFreDzW5vg93kWKe4pYiFdlKIFu71QokVJlWPn8oPvk8YKj3U9AUc4JV6FxNq6oEZzFj9FrC0dqwISLOsoJ-lk6tDB1kpZA
+User-Agent: SFDC-Callout/66.0
+SFDC_STACK_DEPTH: 1
+Accept: text/html, image/gif, image/jpeg, */*; q=0.2
+Accept-Encoding: gzip,deflate
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 141.163.193.253
+X-Correlation-Id: 39fc8998-4548-400a-8573-df1164f10a82
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+2026-03-06T00:57:15.421Z INFO [9hfnm] CustomLogger event:39fc8998-4548-400a-8573-df1164f10a82 [MuleRuntime].uber.6875: [msd-sep-accint-job-application-papi-v1].intialize-trace.CPU_LITE @6fc93ae7 - API request received
+2026-03-06T00:57:15.423Z INFO [9hfnm] CustomLogger event:39fc8998-4548-400a-8573-df1164f10a82 [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].get-dtrd-status.CPU_LITE @29bb0e19 - Request received at get DTRD status flow: clientNumber=623173178 channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=9-4462-9637-6bf0b141427f
+2026-03-06T00:57:15.424Z INFO [9hfnm] CustomLogger event:39fc8998-4548-400a-8573-df1164f10a82 [MuleRuntime].uber.6875: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Request sent to /dtrd-status channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=9-4462-9637-6bf0b141427f
+2026-03-06T00:57:15.437Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:39fc8998-4548-400a-8573-df1164f10a82 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.01 SelectorRunner - REQUESTER
+GET /api/dtrd-status?client=623173178 HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: 9-4462-9637-6bf0b141427f
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: 39fc8998-4548-400a-8573-df1164f10a82
+tracestate: 
+traceparent: 00-dd04a5853d731568c52cac055ce430ce-bd3c1a46dcc121e3-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+
+ channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=9-4462-9637-6bf0b141427f
+2026-03-06T00:57:16.665Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:39fc8998-4548-400a-8573-df1164f10a82 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.01 SelectorRunner - REQUESTER
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+x-transaction-id: 9-4462-9637-6bf0b141427f
+Content-Type: application/json; charset=UTF-8
+Content-Length: 166
+Date: Fri, 06 Mar 2026 00:57:16 GMT
+x-correlation-id: 39fc8998-4548-400a-8573-df1164f10a82
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "200",
+  "responseId": "9-4462-9637-6bf0b141427f",
+  "message": "DTRD status retrieved successfully",
+  "results": {
+    "isDTRDelayed": false
+  }
+} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=9-4462-9637-6bf0b141427f
+2026-03-06T00:57:16.666Z DEBUG [9hfnm] CustomLogger event:39fc8998-4548-400a-8573-df1164f10a82 [MuleRuntime].uber.6875: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Response received from /dtrd-status >> {"statusCode": "200","responseId": "9-4462-9637-6bf0b141427f","message": "DTRD status retrieved successfully","results": {"isDTRDelayed": false}} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=9-4462-9637-6bf0b141427f
+2026-03-06T00:57:16.667Z DEBUG [9hfnm] CustomLogger event:39fc8998-4548-400a-8573-df1164f10a82 [MuleRuntime].uber.6875: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Received response from SUCCESSFUL endpoint invocation in 1242 ms channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=9-4462-9637-6bf0b141427f
+2026-03-06T00:57:16.667Z INFO [9hfnm] CustomLogger event:39fc8998-4548-400a-8573-df1164f10a82 [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].get-dtrd-status.CPU_INTENSIVE @b659e43 - Response returned for get DTRD status flow channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=9-4462-9637-6bf0b141427f
+2026-03-06T00:57:16.668Z DEBUG [9hfnm] CustomLogger event:39fc8998-4548-400a-8573-df1164f10a82 [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - API response returned channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=9-4462-9637-6bf0b141427f
+2026-03-06T00:57:16.669Z DEBUG [9hfnm] apiHttpListenerConfig event:39fc8998-4548-400a-8573-df1164f10a82 [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - LISTENER
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+x-content-type-options: nosniff
+x-transaction-id: 9-4462-9637-6bf0b141427f
+access-control-allow-origin: *.msd.gov.nz
+access-control-allow-headers: Authorization, Content-Type, x-consumer-key
+access-control-allow-credentials: TRUE
+access-control-max-age: 600
+access-control-allow-methods: GET,POST,PUT,PATCH,DELETE
+x-frame-options: DENY
+referrer-policy: no-referrer
+content-security-policy: default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none'
+strict-transport-security: max-age=31536000; includeSubDomains
+set-cookie: FALSE
+cache-control: no-store
+pragma: no-cache
+x-ratelimit-remaining: 59
+x-ratelimit-limit: 60
+x-ratelimit-reset: 497
+Content-Type: application/json; charset=UTF-8
+Content-Length: 166
+Date: Fri, 06 Mar 2026 00:57:16 GMT
+
+{
+  "statusCode": "200",
+  "responseId": "9-4462-9637-6bf0b141427f",
+  "message": "DTRD status retrieved successfully",
+  "results": {
+    "isDTRDelayed": false
+  }
+} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=9-4462-9637-6bf0b141427f
+2026-03-06T00:57:32.047Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.01 SelectorRunner - LISTENER
+POST /api/clients/623173178/referrals HTTP/1.1
+x-transaction-id: f-4b3c-9f9e-cd66eccbc127
+x-service-id: Salesforce
+x-channel-id: Salesforce
+Content-Type: application/json
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-consumer-key: 003c7d6a01e84534885be5439bc602b9
+grant_type: client_credentials
+Authorization: Bearer eyJraWQiOiJNdWxlc29mdEpXVFNTQ2VydCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJhdWQiOiI5YTFjM2Q0OS0wY2NlLTQ2YjEtOGM3NC0xN2ExZGIyNThkY2EiLCJuYmYiOjE3NzI3NTg2NTIsImF6cCI6IjAwM2M3ZDZhMDFlODQ1MzQ4ODViZTU0MzliYzYwMmI5Iiwicm9sZXMiOiJbXCJzZXAuZGVzLm0ybTp3cml0ZVwiLFwic2VwLmRlcy5tMm06cmVhZFwiXSIsImV4cCI6MTc3Mjc1ODc3MiwiaWF0IjoxNzcyNzU4NjUyfQ.oXPpyPlOQeT6jQJEzRtCEgqUpmP8Rw0qA0r4xfQpt52S67gYj96eiemdZur9tm9ySQ8fDBeOQK3sdLqE3Ds6OUnX5_fAJYz7BBOxXn8AA6vEID1RbOicN4DCGQ5FJ7QJTLacs6yrrxAKUOlZNb95sMw2TXXgyw4_LIdqUTpBN9YghNBnCotmX3AcnZHyqKIw_G5w_jDdbMRDz7F-oKE4kDpEp2llnVilDBp7QDWYmo7pQ5SKJsul03vdmQwvr9t75bxEAZqY7UttVjXTRHCdjjfa1bZSUCqKes9XMkKe6T-k6u9I_EDhpepGn32hvFhP3r1ggC1HS4N-eoF6_g9mxg
+User-Agent: SFDC-Callout/66.0
+SFDC_STACK_DEPTH: 1
+Accept: text/html, image/gif, image/jpeg, */*; q=0.2
+Content-Length: 114
+Accept-Encoding: gzip,deflate
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 141.163.193.253
+X-Correlation-Id: a133819d-e37b-407c-b9ef-57f779c10d0a
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+
+{"interviewDateTime":"2026-03-18T10:30:00.000","modifiedByUser":"EReadWri","outcome":"RTF","vacancyId":"99660708"}
+2026-03-06T00:57:32.05Z INFO [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6876: [msd-sep-accint-job-application-papi-v1].intialize-trace.CPU_LITE @6fc93ae7 - API request received
+2026-03-06T00:57:32.051Z INFO [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: [msd-sep-accint-job-application-papi-v1].create-referral.CPU_LITE @32da4a36 - Request received at create referral flow: clientNumber=623173178 channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:32.052Z DEBUG [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-create-referral.CPU_LITE @48d71e6a - Request sent to /clients/{clientNumber}/referrals >> {"interviewDateTime": "2026-03-18T10:30:00.000","modifiedByUser": "EReadWri","outcome": "RTF","vacancyId": "99660708"} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:32.056Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.requester.workers @9415977 - REQUESTER
+POST /api/clients/623173178/referrals HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: f-4b3c-9f9e-cd66eccbc127
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: a133819d-e37b-407c-b9ef-57f779c10d0a
+tracestate: 
+traceparent: 00-9e7859f37f729a0cac211f653bbd92d6-45fea672737eb98b-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+Content-Length: 131
+
+{
+  "interviewDateTime": "2026-03-18T10:30:00.000",
+  "modifiedByUser": "EReadWri",
+  "outcome": "RTF",
+  "vacancyId": "99660708"
+} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:42.06Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:a133819d-e37b-407c-b9ef-57f779c10d0a [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.02 SelectorRunner - REQUESTER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: f-4b3c-9f9e-cd66eccbc127
+Content-Type: application/json; charset=UTF-8
+Content-Length: 218
+Date: Fri, 06 Mar 2026 00:57:42 GMT
+x-correlation-id: a133819d-e37b-407c-b9ef-57f779c10d0a
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "500",
+  "responseId": "a133819d-e37b-407c-b9ef-57f779c10d0a",
+  "error": {
+    "detail": "There was a problem while trying to create referral in AIS",
+    "timestamp": "2026-03-06T00:57:42.055"
+  }
+} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:42.061Z ERROR [9hfnm] DefaultExceptionListener event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6877: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - 
+********************************************************************************
+Message               : HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/623173178/referrals' failed: internal server error (500).
+Element               : call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral)
+Element DSL           : <http:request method="POST" doc:name="Request To AIS Employment SAPI Create Referral" doc:id="b0108da0-2f4b-44a5-ab73-4d9684f0087d" config-ref="aisEmploymentSapiHttpRequestConfig" path="${internal.ais-employment-sapi.endpoints.createReferral}" sendCorrelationId="ALWAYS" correlationId="#[correlationId]">
+<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-type": attributes.headers."content-type",
+	"Accept": attributes.headers."accept",
+	"x-transaction-id": attributes.headers."x-transaction-id",
+	"client_id" : p('secure::internal.mule.clientId'),
+	"client_secret": p('secure::internal.mule.clientSecret'),
+	"x-channel-id": p('internal.ais-employment-sapi.sourceSystem'),
+	"x-service-id": attributes.headers."x-service-id",
+	"Content-type": attributes.headers."content-type"
+}]]]></http:headers>
+<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"clientNumber" : attributes.uriParams.clientNumber default ""
+}]]]></http:uri-params>
+</http:request>
+Error type            : HTTP:INTERNAL_SERVER_ERROR
+FlowStack             : at call-ais-employment-sapi-for-create-referral(call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral))
+at invoke-endpoint-until-successful(invoke-endpoint-until-successful/processors/5/processors/0/processors/0/processors/0 @ msd-sep-accint-job-application-papi-v1:retryable-invoke.xml:46 (Call vars.invokeEndpointFlow))
+at invoke-ais-employment-sapi-for-create-referral(invoke-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:50 (Call invoke-endpoint-until-successful))
+at create-referral(create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:19 (Call invoke-ais-employment-sapi-for-create-referral))
+at post:\clients\(clientNumber)\referrals:application\json:apiConfig(post:\clients\(clientNumber)\referrals:application\json:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:50 (Call create-referral))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:42.061Z ERROR [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6877: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - A transient error occurred while invoking endpoint (HTTP:INTERNAL_SERVER_ERROR HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/623173178/referrals' failed: internal server error (500).) - triggering re-try channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:42.062Z ERROR [9hfnm] UntilSuccessfulRouter event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6877: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Scheduling retry execution of event, attempt 1 of 1. channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:45.063Z DEBUG [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-create-referral.CPU_LITE @48d71e6a - Request sent to /clients/{clientNumber}/referrals >> {"interviewDateTime": "2026-03-18T10:30:00.000","modifiedByUser": "EReadWri","outcome": "RTF","vacancyId": "99660708"} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:45.067Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.requester.workers @9415977 - REQUESTER
+POST /api/clients/623173178/referrals HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: f-4b3c-9f9e-cd66eccbc127
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: a133819d-e37b-407c-b9ef-57f779c10d0a
+tracestate: 
+traceparent: 00-9e7859f37f729a0cac211f653bbd92d6-cba44800bdaedcb5-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+Content-Length: 131
+
+{
+  "interviewDateTime": "2026-03-18T10:30:00.000",
+  "modifiedByUser": "EReadWri",
+  "outcome": "RTF",
+  "vacancyId": "99660708"
+} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.951Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:a133819d-e37b-407c-b9ef-57f779c10d0a [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.01 SelectorRunner - REQUESTER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: f-4b3c-9f9e-cd66eccbc127
+Content-Type: application/json; charset=UTF-8
+Content-Length: 218
+Date: Fri, 06 Mar 2026 00:57:54 GMT
+x-correlation-id: a133819d-e37b-407c-b9ef-57f779c10d0a
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "500",
+  "responseId": "a133819d-e37b-407c-b9ef-57f779c10d0a",
+  "error": {
+    "detail": "There was a problem while trying to create referral in AIS",
+    "timestamp": "2026-03-06T00:57:54.944"
+  }
+} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.952Z ERROR [9hfnm] DefaultExceptionListener event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - 
+********************************************************************************
+Message               : HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/623173178/referrals' failed: internal server error (500).
+Element               : call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral)
+Element DSL           : <http:request method="POST" doc:name="Request To AIS Employment SAPI Create Referral" doc:id="b0108da0-2f4b-44a5-ab73-4d9684f0087d" config-ref="aisEmploymentSapiHttpRequestConfig" path="${internal.ais-employment-sapi.endpoints.createReferral}" sendCorrelationId="ALWAYS" correlationId="#[correlationId]">
+<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-type": attributes.headers."content-type",
+	"Accept": attributes.headers."accept",
+	"x-transaction-id": attributes.headers."x-transaction-id",
+	"client_id" : p('secure::internal.mule.clientId'),
+	"client_secret": p('secure::internal.mule.clientSecret'),
+	"x-channel-id": p('internal.ais-employment-sapi.sourceSystem'),
+	"x-service-id": attributes.headers."x-service-id",
+	"Content-type": attributes.headers."content-type"
+}]]]></http:headers>
+<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"clientNumber" : attributes.uriParams.clientNumber default ""
+}]]]></http:uri-params>
+</http:request>
+Error type            : HTTP:INTERNAL_SERVER_ERROR
+FlowStack             : at call-ais-employment-sapi-for-create-referral(call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral))
+at invoke-endpoint-until-successful(invoke-endpoint-until-successful/processors/5/processors/0/processors/0/processors/0 @ msd-sep-accint-job-application-papi-v1:retryable-invoke.xml:46 (Call vars.invokeEndpointFlow))
+at invoke-ais-employment-sapi-for-create-referral(invoke-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:50 (Call invoke-endpoint-until-successful))
+at create-referral(create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:19 (Call invoke-ais-employment-sapi-for-create-referral))
+at post:\clients\(clientNumber)\referrals:application\json:apiConfig(post:\clients\(clientNumber)\referrals:application\json:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:50 (Call create-referral))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.952Z ERROR [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - A transient error occurred while invoking endpoint (HTTP:INTERNAL_SERVER_ERROR HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/623173178/referrals' failed: internal server error (500).) - triggering re-try channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.953Z ERROR [9hfnm] UntilSuccessfulRouter event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Retry attempts exhausted. Failing... channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.953Z ERROR [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Exhausted re-tries invoking endpoint (MULE:RETRY_EXHAUSTED HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/623173178/referrals' failed: internal server error (500).) - giving up channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.953Z DEBUG [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Received response from FAILED endpoint invocation in 22901 ms channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.955Z ERROR [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Error calling Backend API: EXT:CANT_CALL_AIS_SAPI There was a problem while trying to access AIS Employment SAPI for referral creation << {
+  statusCode: "500",
+  responseId: "a133819d-e37b-407c-b9ef-57f779c10d0a",
+  error: {
+    detail: "There was a problem while trying to create referral in AIS",
+    timestamp: "2026-03-06T00:57:54.944"
+  }
+} as Object {encoding: "UTF-8", mediaType: "application/json; charset=UTF-8", mimeType: "application/json"} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.955Z ERROR [9hfnm] DefaultExceptionListener event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6875: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - 
+********************************************************************************
+Message               : There was a problem while trying to access AIS Employment SAPI for referral creation
+Element               : invoke-ais-employment-sapi-for-create-referral/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:51 (Successful else raise EXT:CANT_CALL_AIS_SAPI)
+Element DSL           : <validation:is-true doc:name="Successful else raise EXT:CANT_CALL_AIS_SAPI" doc:id="ef7189f1-3fa0-491f-9fd5-10a826740753" expression="#[vars.successful]" message="#[p('messages.createReferralBackendError')]">
+<error-mapping targetType="EXT:CANT_CALL_AIS_SAPI"></error-mapping>
+</validation:is-true>
+Error type            : EXT:CANT_CALL_AIS_SAPI
+FlowStack             : at invoke-ais-employment-sapi-for-create-referral(invoke-ais-employment-sapi-for-create-referral/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:51 (Successful else raise EXT:CANT_CALL_AIS_SAPI))
+at create-referral(create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:19 (Call invoke-ais-employment-sapi-for-create-referral))
+at post:\clients\(clientNumber)\referrals:application\json:apiConfig(post:\clients\(clientNumber)\referrals:application\json:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:50 (Call create-referral))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.956Z DEBUG [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].api-error-handler.CPU_INTENSIVE @49511122 - API error will be returned channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.956Z DEBUG [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - API response returned channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.957Z ERROR [9hfnm] DefaultExceptionListener event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - 
+********************************************************************************
+Message               : There was a problem while trying to access AIS Employment SAPI for referral creation
+Element               : (None)
+Element DSL           : (None)
+Error type            : EXT:CANT_CALL_AIS_SAPI
+FlowStack             : (None)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.957Z DEBUG [9hfnm] CustomLogger event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6876: [msd-sep-accint-job-application-papi-v1].api-error-handler/8/processors/2 @1313e1fa - None to alert channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T00:57:54.959Z DEBUG [9hfnm] apiHttpListenerConfig event:a133819d-e37b-407c-b9ef-57f779c10d0a [MuleRuntime].uber.6877: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - LISTENER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: f-4b3c-9f9e-cd66eccbc127
+x-ratelimit-remaining: 59
+x-ratelimit-limit: 60
+x-ratelimit-reset: 869
+Content-Type: application/json; charset=UTF-8
+Content-Length: 244
+Date: Fri, 06 Mar 2026 00:57:54 GMT
+Connection: close
+
+{
+  "statusCode": "500",
+  "responseId": "a133819d-e37b-407c-b9ef-57f779c10d0a",
+  "error": {
+    "detail": "There was a problem while trying to access AIS Employment SAPI for referral creation",
+    "timestamp": "2026-03-06T00:57:54.955"
+  }
+} channelId=Salesforce resource=POST:/api/clients/623173178/referrals serviceId=Salesforce transactionId=f-4b3c-9f9e-cd66eccbc127
+2026-03-06T01:02:31.957Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.02 SelectorRunner - LISTENER
+POST /api/clients/623140228/applications HTTP/1.1
+Content-Length: 146
+User-Agent: Java-http-client/21.0.9
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkUxVUh0MDlJZm1VbmpGak1ZYWRDNFRHWEdRWEhZRS1TVXNFOHlCR1Zfc0kiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiI2ZjYyYzgzNS05ZDNiLTQyZTQtYTIzMi0wYmYwYTk2ZWY5MzkiLCJpc3MiOiJodHRwczovL2lkZW50aXR5LmRldi5hei5tc2QuZ292dC5uei83YTRjNzZkZS0yOGFhLTRhOTAtYjJlMy03MGEwYmU4NTMzYjkvdjIuMC8iLCJleHAiOjE3NzI3NjI0MDUsIm5iZiI6MTc3Mjc1ODgwNSwic3ViIjoiOWM4M2VhMTgtYTRlNi00YzExLWJjN2QtYWFiNTU4YTcyZGE5IiwidWlkIjoiNjIzMTQwMjI4Iiwibm9uY2UiOiJsdGlySy1ERW5JS2VybzF0YmRSMmdBIiwic2NwIjoic2VwLmRlcy5jbGllbnQ6cmVhZDp3cml0ZSIsImF6cCI6Ijk3ZjZhMTg5LWQzYTEtNDA0ZC1hODcxLWRlZWU1ODljNjNkYyIsInZlciI6IjEuMCIsImlhdCI6MTc3Mjc1ODgwNX0.mmhgosbatSzzfe8ZIuYsT0Xk19iRMxpqk-9RUlGx8UsdHmPb_iTLSSC0YGhh4VBvUqE0KVytd2lrkx3ClNJ-OlKjXYEZWLtLYeFDDlHdRtC4UkUS3H2MBZVoo9BiZ2lguxAMq_2E9tr22xFYmuBaoKb-3Nzbl8lqRkDUQi5EWKHVLFfbGTGMxh0LYXBDbteMV3CUJ1BHWrAVIw2CAEqfLCJOhpzJTcYE3224vacXiV9jYQo3ogLd-uVs-r1_5VuPdv79_9W47vlPtULRqYltSI5z2vdYSuyV0WeaVGgTMFnzHwnckTeztNZyCvgYXeGfUe3YDy_2BDZOdj_ZO_K_1g
+Content-Type: application/json
+x-channel-id: AEMNP
+x-consumer-key: 8b649e1005514e1ba203b2f22939fe2d
+x-service-id: CJA-01
+x-transaction-id: 7be4c210-19db-443d-a14c-396b20aaa521
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 4.147.249.2
+X-Correlation-Id: 783c2927-b2b9-4502-a803-39d5abee6902
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+2026-03-06T01:02:31.96Z DEBUG [9hfnm] apiHttpListenerConfig event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6881: [jwt-validation-mule-7380642-api-main].7380642-client-id-enforcement.CPU_INTENSIVE @31f00a14 - LISTENER
+{"applicationForm":{"vacancyId":"99660944","cvPreference":"SEND_UR_CV","hasReferences":"No","submissionDateTime":"2026-03-06T01:02:31.88986193Z"}}
+2026-03-06T01:02:31.961Z INFO [9hfnm] CustomLogger event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6881: [msd-sep-accint-job-application-papi-v1].intialize-trace.CPU_LITE @6fc93ae7 - API request received
+2026-03-06T01:02:31.963Z INFO [9hfnm] CustomLogger event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6883: [msd-sep-accint-job-application-papi-v1].create-job-application.CPU_LITE @ab1a5f6 - Request received at create job application flow: clientNumber=623140228 channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:31.963Z INFO [9hfnm] CustomLogger event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6882: [msd-sep-accint-job-application-papi-v1].validate-jwt-token.CPU_LITE @5d4e7f4f - Request received at validate-jwt-token flow for clientNumber=623140228 channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:31.964Z INFO [9hfnm] CustomLogger event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6882: [msd-sep-accint-job-application-papi-v1].validate-jwt-token.CPU_INTENSIVE @75622941 - client validated successfully!! channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:31.965Z DEBUG [9hfnm] CustomLogger event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6881: [msd-sep-accint-job-application-papi-v1].call-salesforce-employment-sapi-for-create-job-application.CPU_LITE @5291f5ab - Request sent to /clients/{clientNumber}/applications >> {"applicationForm": {"vacancyId": "99660944","cvPreference": "SEND_UR_CV","hasReferences": "No","submissionDateTime": "2026-03-06T01:02:31.88986193Z"}} channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:31.978Z DEBUG [9hfnm] salesforceEmploymentSapiHttpRequestConfig event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6881: [msd-sep-accint-job-application-papi-v1].http.requester.salesforceEmploymentSapiHttpRequestConfig.requester.workers @2a691a2a - REQUESTER
+POST /api/clients/623140228/applications HTTP/1.1
+accept: application/json
+x-transaction-id: 7be4c210-19db-443d-a14c-396b20aaa521
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: AEMNP
+x-service-id: CJA-01
+authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkUxVUh0MDlJZm1VbmpGak1ZYWRDNFRHWEdRWEhZRS1TVXNFOHlCR1Zfc0kiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiI2ZjYyYzgzNS05ZDNiLTQyZTQtYTIzMi0wYmYwYTk2ZWY5MzkiLCJpc3MiOiJodHRwczovL2lkZW50aXR5LmRldi5hei5tc2QuZ292dC5uei83YTRjNzZkZS0yOGFhLTRhOTAtYjJlMy03MGEwYmU4NTMzYjkvdjIuMC8iLCJleHAiOjE3NzI3NjI0MDUsIm5iZiI6MTc3Mjc1ODgwNSwic3ViIjoiOWM4M2VhMTgtYTRlNi00YzExLWJjN2QtYWFiNTU4YTcyZGE5IiwidWlkIjoiNjIzMTQwMjI4Iiwibm9uY2UiOiJsdGlySy1ERW5JS2VybzF0YmRSMmdBIiwic2NwIjoic2VwLmRlcy5jbGllbnQ6cmVhZDp3cml0ZSIsImF6cCI6Ijk3ZjZhMTg5LWQzYTEtNDA0ZC1hODcxLWRlZWU1ODljNjNkYyIsInZlciI6IjEuMCIsImlhdCI6MTc3Mjc1ODgwNX0.mmhgosbatSzzfe8ZIuYsT0Xk19iRMxpqk-9RUlGx8UsdHmPb_iTLSSC0YGhh4VBvUqE0KVytd2lrkx3ClNJ-OlKjXYEZWLtLYeFDDlHdRtC4UkUS3H2MBZVoo9BiZ2lguxAMq_2E9tr22xFYmuBaoKb-3Nzbl8lqRkDUQi5EWKHVLFfbGTGMxh0LYXBDbteMV3CUJ1BHWrAVIw2CAEqfLCJOhpzJTcYE3224vacXiV9jYQo3ogLd-uVs-r1_5VuPdv79_9W47vlPtULRqYltSI5z2vdYSuyV0WeaVGgTMFnzHwnckTeztNZyCvgYXeGfUe3YDy_2BDZOdj_ZO_K_1g
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: 783c2927-b2b9-4502-a803-39d5abee6902
+tracestate: 
+traceparent: 00-0b7048699c2c585b00b56abd70a56b97-9af529e65e4ba3d7-01
+Host: msd-sep-accint-salesforce-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+Content-Length: 178
+
+{
+  "applicationForm": {
+    "vacancyId": "99660944",
+    "cvPreference": "SEND_UR_CV",
+    "hasReferences": "No",
+    "submissionDateTime": "2026-03-06T01:02:31.88986193Z"
+  }
+} channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:34.127Z DEBUG [9hfnm] salesforceEmploymentSapiHttpRequestConfig event:783c2927-b2b9-4502-a803-39d5abee6902 [msd-sep-accint-job-application-papi-v1].http.requester.salesforceEmploymentSapiHttpRequestConfig.02 SelectorRunner - REQUESTER
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+x-transaction-id: 7be4c210-19db-443d-a14c-396b20aaa521
+Content-Type: application/json; charset=UTF-8
+Content-Length: 242
+Date: Fri, 06 Mar 2026 01:02:34 GMT
+x-correlation-id: 783c2927-b2b9-4502-a803-39d5abee6902
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "200",
+  "responseId": "783c2927-b2b9-4502-a803-39d5abee6902",
+  "message": "Job Application created successfully",
+  "results": {
+    "applicationFormId": "13XBn000000oRt3MAE",
+    "applicationFormName": "AF-00001064"
+  }
+} channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:34.129Z DEBUG [9hfnm] CustomLogger event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6881: [msd-sep-accint-job-application-papi-v1].call-salesforce-employment-sapi-for-create-job-application.CPU_LITE @5291f5ab - Response received from /clients/{clientNumber}/applications >> {"statusCode": "200","responseId": "783c2927-b2b9-4502-a803-39d5abee6902","message": "Job Application created successfully","results": {"applicationFormId": "13XBn000000oRt3MAE","applicationFormName": "AF-00001064"}} channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:34.129Z DEBUG [9hfnm] CustomLogger event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6881: [msd-sep-accint-job-application-papi-v1].call-salesforce-employment-sapi-for-create-job-application.CPU_LITE @5291f5ab - Received response from SUCCESSFUL endpoint invocation in 2164 ms channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:34.13Z INFO [9hfnm] CustomLogger event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6882: [msd-sep-accint-job-application-papi-v1].create-job-application.CPU_INTENSIVE @367763bd - Response returned for create job application flow for client = 623140228 channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:34.13Z DEBUG [9hfnm] CustomLogger event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6882: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - API response returned channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:02:34.132Z DEBUG [9hfnm] apiHttpListenerConfig event:783c2927-b2b9-4502-a803-39d5abee6902 [MuleRuntime].uber.6882: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - LISTENER
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+x-content-type-options: nosniff
+x-transaction-id: 7be4c210-19db-443d-a14c-396b20aaa521
+access-control-allow-origin: *.msd.gov.nz
+access-control-allow-headers: Authorization, Content-Type, x-consumer-key
+access-control-allow-credentials: TRUE
+access-control-max-age: 600
+access-control-allow-methods: GET,POST,PUT,PATCH,DELETE
+x-frame-options: DENY
+referrer-policy: no-referrer
+content-security-policy: default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none'
+strict-transport-security: max-age=31536000; includeSubDomains
+set-cookie: FALSE
+cache-control: no-store
+pragma: no-cache
+x-ratelimit-remaining: 59
+x-ratelimit-limit: 60
+x-ratelimit-reset: 958
+Content-Type: application/json; charset=UTF-8
+Content-Length: 242
+Date: Fri, 06 Mar 2026 01:02:34 GMT
+
+{
+  "statusCode": "200",
+  "responseId": "783c2927-b2b9-4502-a803-39d5abee6902",
+  "message": "Job Application created successfully",
+  "results": {
+    "applicationFormId": "13XBn000000oRt3MAE",
+    "applicationFormName": "AF-00001064"
+  }
+} channelId=AEMNP resource=POST:/api/clients/623140228/applications serviceId=CJA-01 transactionId=7be4c210-19db-443d-a14c-396b20aaa521
+2026-03-06T01:05:40.831Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.04 SelectorRunner - LISTENER
+GET /api/dtrd-status?client=263465387 HTTP/1.1
+x-transaction-id: 2-4be9-9478-fb9d78ffeafb
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-service-id: Salesforce
+x-channel-id: Salesforce
+Content-Type: application/json
+x-consumer-key: 003c7d6a01e84534885be5439bc602b9
+grant_type: client_credentials
+Authorization: Bearer eyJraWQiOiJNdWxlc29mdEpXVFNTQ2VydCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJhdWQiOiI5YTFjM2Q0OS0wY2NlLTQ2YjEtOGM3NC0xN2ExZGIyNThkY2EiLCJuYmYiOjE3NzI3NTkxNDAsImF6cCI6IjAwM2M3ZDZhMDFlODQ1MzQ4ODViZTU0MzliYzYwMmI5Iiwicm9sZXMiOiJbXCJzZXAuZGVzLm0ybTp3cml0ZVwiLFwic2VwLmRlcy5tMm06cmVhZFwiXSIsImV4cCI6MTc3Mjc1OTI2MCwiaWF0IjoxNzcyNzU5MTQwfQ.mOw-z0j2ONlGewEYLlF_3fXpRlEWjAdu6UWaug-tz9lrWppTlU6werPcot-ojnD4U6PJEyJVETW83Q8GxPMWg6NRU05yoBfcKbi2ZLahtZk-95uSaOQRrx7ASee4Gp8lSfbjgElXCVowEHz0uPjBs2-MJOGBtfCBWCR7jo4wrC3fp-frnUguPX2ny_qo_uPi7LvmlxrTrfnFbFVtqiNJfI3smEzxSaxcAui8Gmu4ZEAKeJfrJxyNz0sOScPI4X9XsPEoD6z9lBszPW0p1OA4GkasJ5rNtBNOAqY3gh3F71QHXC4_79U4b9Kuf7U2GBl7eF1lnyusyt6dTMnkmyg41A
+User-Agent: SFDC-Callout/66.0
+SFDC_STACK_DEPTH: 1
+Accept: text/html, image/gif, image/jpeg, */*; q=0.2
+Accept-Encoding: gzip,deflate
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 141.163.193.254
+X-Correlation-Id: 29628adf-6ab9-4fef-b18a-eb657c8afc68
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+2026-03-06T01:05:40.834Z INFO [9hfnm] CustomLogger event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [MuleRuntime].uber.6885: [msd-sep-accint-job-application-papi-v1].intialize-trace.CPU_LITE @6fc93ae7 - API request received
+2026-03-06T01:05:40.835Z INFO [9hfnm] CustomLogger event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [MuleRuntime].uber.6887: [msd-sep-accint-job-application-papi-v1].get-dtrd-status.CPU_LITE @29bb0e19 - Request received at get DTRD status flow: clientNumber=263465387 channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=2-4be9-9478-fb9d78ffeafb
+2026-03-06T01:05:40.836Z INFO [9hfnm] CustomLogger event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [MuleRuntime].uber.6885: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Request sent to /dtrd-status channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=2-4be9-9478-fb9d78ffeafb
+2026-03-06T01:05:40.847Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.02 SelectorRunner - REQUESTER
+GET /api/dtrd-status?client=263465387 HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: 2-4be9-9478-fb9d78ffeafb
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: 29628adf-6ab9-4fef-b18a-eb657c8afc68
+tracestate: 
+traceparent: 00-b9a4b7d013a0baa72a50b4c48fbe6012-485d7dec8c139886-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+
+ channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=2-4be9-9478-fb9d78ffeafb
+2026-03-06T01:05:43.769Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.02 SelectorRunner - REQUESTER
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+x-transaction-id: 2-4be9-9478-fb9d78ffeafb
+Content-Type: application/json; charset=UTF-8
+Content-Length: 166
+Date: Fri, 06 Mar 2026 01:05:43 GMT
+x-correlation-id: 29628adf-6ab9-4fef-b18a-eb657c8afc68
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "200",
+  "responseId": "2-4be9-9478-fb9d78ffeafb",
+  "message": "DTRD status retrieved successfully",
+  "results": {
+    "isDTRDelayed": false
+  }
+} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=2-4be9-9478-fb9d78ffeafb
+2026-03-06T01:05:43.77Z DEBUG [9hfnm] CustomLogger event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [MuleRuntime].uber.6885: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Response received from /dtrd-status >> {"statusCode": "200","responseId": "2-4be9-9478-fb9d78ffeafb","message": "DTRD status retrieved successfully","results": {"isDTRDelayed": false}} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=2-4be9-9478-fb9d78ffeafb
+2026-03-06T01:05:43.77Z DEBUG [9hfnm] CustomLogger event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [MuleRuntime].uber.6885: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Received response from SUCCESSFUL endpoint invocation in 2934 ms channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=2-4be9-9478-fb9d78ffeafb
+2026-03-06T01:05:43.771Z INFO [9hfnm] CustomLogger event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [MuleRuntime].uber.6887: [msd-sep-accint-job-application-papi-v1].get-dtrd-status.CPU_INTENSIVE @b659e43 - Response returned for get DTRD status flow channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=2-4be9-9478-fb9d78ffeafb
+2026-03-06T01:05:43.771Z DEBUG [9hfnm] CustomLogger event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [MuleRuntime].uber.6887: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - API response returned channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=2-4be9-9478-fb9d78ffeafb
+2026-03-06T01:05:43.773Z DEBUG [9hfnm] apiHttpListenerConfig event:29628adf-6ab9-4fef-b18a-eb657c8afc68 [MuleRuntime].uber.6887: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - LISTENER
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+x-content-type-options: nosniff
+x-transaction-id: 2-4be9-9478-fb9d78ffeafb
+access-control-allow-origin: *.msd.gov.nz
+access-control-allow-headers: Authorization, Content-Type, x-consumer-key
+access-control-allow-credentials: TRUE
+access-control-max-age: 600
+access-control-allow-methods: GET,POST,PUT,PATCH,DELETE
+x-frame-options: DENY
+referrer-policy: no-referrer
+content-security-policy: default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none'
+strict-transport-security: max-age=31536000; includeSubDomains
+set-cookie: FALSE
+cache-control: no-store
+pragma: no-cache
+x-ratelimit-remaining: 59
+x-ratelimit-limit: 60
+x-ratelimit-reset: 85
+Content-Type: application/json; charset=UTF-8
+Content-Length: 166
+Date: Fri, 06 Mar 2026 01:05:43 GMT
+
+{
+  "statusCode": "200",
+  "responseId": "2-4be9-9478-fb9d78ffeafb",
+  "message": "DTRD status retrieved successfully",
+  "results": {
+    "isDTRDelayed": false
+  }
+} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=2-4be9-9478-fb9d78ffeafb
+2026-03-06T01:06:16.155Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.01 SelectorRunner - LISTENER
+POST /api/clients/263465387/referrals HTTP/1.1
+x-transaction-id: 8-432d-93db-455302052c90
+x-service-id: Salesforce
+x-channel-id: Salesforce
+Content-Type: application/json
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-consumer-key: 003c7d6a01e84534885be5439bc602b9
+grant_type: client_credentials
+Authorization: Bearer eyJraWQiOiJNdWxlc29mdEpXVFNTQ2VydCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJhdWQiOiI5YTFjM2Q0OS0wY2NlLTQ2YjEtOGM3NC0xN2ExZGIyNThkY2EiLCJuYmYiOjE3NzI3NTkxNzYsImF6cCI6IjAwM2M3ZDZhMDFlODQ1MzQ4ODViZTU0MzliYzYwMmI5Iiwicm9sZXMiOiJbXCJzZXAuZGVzLm0ybTp3cml0ZVwiLFwic2VwLmRlcy5tMm06cmVhZFwiXSIsImV4cCI6MTc3Mjc1OTI5NiwiaWF0IjoxNzcyNzU5MTc2fQ.E9e8M0jYFanaGk_fg8T0ZycYKe8Xumb5mMnlemr9UVIe2HnoLMggEU7XUuzoHda86ULgkMRvjbU7YN0r5Amtg_deAUqA7iFNn3TEy33aEANTx57iQHcR7EoTOQU6K6pHXPkYNIrcbmYOg3sN4Ek5rbRZpZsHjKOfWZaVVZD6AUAxGF-w-bo05F8O6IyGsmVGzfF8L2QbG2KmxHuqoYlzbWhBQvT8A3UGC8dUQuCc7HQ49jxGTEa1AYp4hFFxfMx92wM2_SetLCJkw7Y5pD8PiidvkQtmq9TPv-t4l0DXmkcy_ylV8tMmT-3wXmByls7TDnyWUjYoaqfADE-VOV_NeQ
+User-Agent: SFDC-Callout/66.0
+SFDC_STACK_DEPTH: 1
+Accept: text/html, image/gif, image/jpeg, */*; q=0.2
+Content-Length: 68
+Accept-Encoding: gzip,deflate
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 141.163.193.253
+X-Correlation-Id: 61ace8de-0daf-47fa-a2ea-c54596d35240
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+
+{"modifiedByUser":"acoop010","outcome":"RTF","vacancyId":"99660941"}
+2026-03-06T01:06:16.158Z INFO [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: [msd-sep-accint-job-application-papi-v1].intialize-trace.CPU_LITE @6fc93ae7 - API request received
+2026-03-06T01:06:16.16Z INFO [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: [msd-sep-accint-job-application-papi-v1].create-referral.CPU_LITE @32da4a36 - Request received at create referral flow: clientNumber=263465387 channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:16.161Z DEBUG [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6890: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-create-referral.CPU_LITE @48d71e6a - Request sent to /clients/{clientNumber}/referrals >> {"modifiedByUser": "acoop010","outcome": "RTF","vacancyId": "99660941"} channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:16.174Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6890: [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.requester.workers @9415977 - REQUESTER
+POST /api/clients/263465387/referrals HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: 8-432d-93db-455302052c90
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: 61ace8de-0daf-47fa-a2ea-c54596d35240
+tracestate: 
+traceparent: 00-0ffb0212dace6d35ac53ad2f0ce923c5-0c35230e49e12dfd-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+Content-Length: 81
+
+{
+  "modifiedByUser": "acoop010",
+  "outcome": "RTF",
+  "vacancyId": "99660941"
+} channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:16.57Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:61ace8de-0daf-47fa-a2ea-c54596d35240 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.01 SelectorRunner - REQUESTER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: 8-432d-93db-455302052c90
+Content-Type: application/json; charset=UTF-8
+Content-Length: 218
+Date: Fri, 06 Mar 2026 01:06:16 GMT
+x-correlation-id: 61ace8de-0daf-47fa-a2ea-c54596d35240
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "500",
+  "responseId": "61ace8de-0daf-47fa-a2ea-c54596d35240",
+  "error": {
+    "detail": "There was a problem while trying to create referral in AIS",
+    "timestamp": "2026-03-06T01:06:16.566"
+  }
+} channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:16.571Z ERROR [9hfnm] DefaultExceptionListener event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6890: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - 
+********************************************************************************
+Message               : HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/263465387/referrals' failed: internal server error (500).
+Element               : call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral)
+Element DSL           : <http:request method="POST" doc:name="Request To AIS Employment SAPI Create Referral" doc:id="b0108da0-2f4b-44a5-ab73-4d9684f0087d" config-ref="aisEmploymentSapiHttpRequestConfig" path="${internal.ais-employment-sapi.endpoints.createReferral}" sendCorrelationId="ALWAYS" correlationId="#[correlationId]">
+<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-type": attributes.headers."content-type",
+	"Accept": attributes.headers."accept",
+	"x-transaction-id": attributes.headers."x-transaction-id",
+	"client_id" : p('secure::internal.mule.clientId'),
+	"client_secret": p('secure::internal.mule.clientSecret'),
+	"x-channel-id": p('internal.ais-employment-sapi.sourceSystem'),
+	"x-service-id": attributes.headers."x-service-id",
+	"Content-type": attributes.headers."content-type"
+}]]]></http:headers>
+<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"clientNumber" : attributes.uriParams.clientNumber default ""
+}]]]></http:uri-params>
+</http:request>
+Error type            : HTTP:INTERNAL_SERVER_ERROR
+FlowStack             : at call-ais-employment-sapi-for-create-referral(call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral))
+at invoke-endpoint-until-successful(invoke-endpoint-until-successful/processors/5/processors/0/processors/0/processors/0 @ msd-sep-accint-job-application-papi-v1:retryable-invoke.xml:46 (Call vars.invokeEndpointFlow))
+at invoke-ais-employment-sapi-for-create-referral(invoke-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:50 (Call invoke-endpoint-until-successful))
+at create-referral(create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:19 (Call invoke-ais-employment-sapi-for-create-referral))
+at post:\clients\(clientNumber)\referrals:application\json:apiConfig(post:\clients\(clientNumber)\referrals:application\json:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:50 (Call create-referral))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:16.572Z ERROR [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6890: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - A transient error occurred while invoking endpoint (HTTP:INTERNAL_SERVER_ERROR HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/263465387/referrals' failed: internal server error (500).) - triggering re-try channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:16.572Z ERROR [9hfnm] UntilSuccessfulRouter event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6890: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Scheduling retry execution of event, attempt 1 of 1. channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.574Z DEBUG [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-create-referral.CPU_LITE @48d71e6a - Request sent to /clients/{clientNumber}/referrals >> {"modifiedByUser": "acoop010","outcome": "RTF","vacancyId": "99660941"} channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.579Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.requester.workers @9415977 - REQUESTER
+POST /api/clients/263465387/referrals HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: 8-432d-93db-455302052c90
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: 61ace8de-0daf-47fa-a2ea-c54596d35240
+tracestate: 
+traceparent: 00-0ffb0212dace6d35ac53ad2f0ce923c5-0d5f733f682cad8e-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+Content-Length: 81
+
+{
+  "modifiedByUser": "acoop010",
+  "outcome": "RTF",
+  "vacancyId": "99660941"
+} channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.744Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:61ace8de-0daf-47fa-a2ea-c54596d35240 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.02 SelectorRunner - REQUESTER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: 8-432d-93db-455302052c90
+Content-Type: application/json; charset=UTF-8
+Content-Length: 218
+Date: Fri, 06 Mar 2026 01:06:19 GMT
+x-correlation-id: 61ace8de-0daf-47fa-a2ea-c54596d35240
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "500",
+  "responseId": "61ace8de-0daf-47fa-a2ea-c54596d35240",
+  "error": {
+    "detail": "There was a problem while trying to create referral in AIS",
+    "timestamp": "2026-03-06T01:06:19.738"
+  }
+} channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.745Z ERROR [9hfnm] DefaultExceptionListener event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - 
+********************************************************************************
+Message               : HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/263465387/referrals' failed: internal server error (500).
+Element               : call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral)
+Element DSL           : <http:request method="POST" doc:name="Request To AIS Employment SAPI Create Referral" doc:id="b0108da0-2f4b-44a5-ab73-4d9684f0087d" config-ref="aisEmploymentSapiHttpRequestConfig" path="${internal.ais-employment-sapi.endpoints.createReferral}" sendCorrelationId="ALWAYS" correlationId="#[correlationId]">
+<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-type": attributes.headers."content-type",
+	"Accept": attributes.headers."accept",
+	"x-transaction-id": attributes.headers."x-transaction-id",
+	"client_id" : p('secure::internal.mule.clientId'),
+	"client_secret": p('secure::internal.mule.clientSecret'),
+	"x-channel-id": p('internal.ais-employment-sapi.sourceSystem'),
+	"x-service-id": attributes.headers."x-service-id",
+	"Content-type": attributes.headers."content-type"
+}]]]></http:headers>
+<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"clientNumber" : attributes.uriParams.clientNumber default ""
+}]]]></http:uri-params>
+</http:request>
+Error type            : HTTP:INTERNAL_SERVER_ERROR
+FlowStack             : at call-ais-employment-sapi-for-create-referral(call-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:62 (Request To AIS Employment SAPI Create Referral))
+at invoke-endpoint-until-successful(invoke-endpoint-until-successful/processors/5/processors/0/processors/0/processors/0 @ msd-sep-accint-job-application-papi-v1:retryable-invoke.xml:46 (Call vars.invokeEndpointFlow))
+at invoke-ais-employment-sapi-for-create-referral(invoke-ais-employment-sapi-for-create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:50 (Call invoke-endpoint-until-successful))
+at create-referral(create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:19 (Call invoke-ais-employment-sapi-for-create-referral))
+at post:\clients\(clientNumber)\referrals:application\json:apiConfig(post:\clients\(clientNumber)\referrals:application\json:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:50 (Call create-referral))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.745Z ERROR [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - A transient error occurred while invoking endpoint (HTTP:INTERNAL_SERVER_ERROR HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/263465387/referrals' failed: internal server error (500).) - triggering re-try channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.746Z ERROR [9hfnm] UntilSuccessfulRouter event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Retry attempts exhausted. Failing... channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.746Z ERROR [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Exhausted re-tries invoking endpoint (MULE:RETRY_EXHAUSTED HTTP POST on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/clients/263465387/referrals' failed: internal server error (500).) - giving up channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.746Z DEBUG [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Received response from FAILED endpoint invocation in 3585 ms channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.748Z ERROR [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - Error calling Backend API: EXT:CANT_CALL_AIS_SAPI There was a problem while trying to access AIS Employment SAPI for referral creation << {
+  statusCode: "500",
+  responseId: "61ace8de-0daf-47fa-a2ea-c54596d35240",
+  error: {
+    detail: "There was a problem while trying to create referral in AIS",
+    timestamp: "2026-03-06T01:06:19.738"
+  }
+} as Object {encoding: "UTF-8", mediaType: "application/json; charset=UTF-8", mimeType: "application/json"} channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.748Z ERROR [9hfnm] DefaultExceptionListener event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: (chain) of 'call-ais-employment-sapi-for-create-referral' processor chain.switchOnErrorScheduler @220a042e - 
+********************************************************************************
+Message               : There was a problem while trying to access AIS Employment SAPI for referral creation
+Element               : invoke-ais-employment-sapi-for-create-referral/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:51 (Successful else raise EXT:CANT_CALL_AIS_SAPI)
+Element DSL           : <validation:is-true doc:name="Successful else raise EXT:CANT_CALL_AIS_SAPI" doc:id="ef7189f1-3fa0-491f-9fd5-10a826740753" expression="#[vars.successful]" message="#[p('messages.createReferralBackendError')]">
+<error-mapping targetType="EXT:CANT_CALL_AIS_SAPI"></error-mapping>
+</validation:is-true>
+Error type            : EXT:CANT_CALL_AIS_SAPI
+FlowStack             : at invoke-ais-employment-sapi-for-create-referral(invoke-ais-employment-sapi-for-create-referral/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:51 (Successful else raise EXT:CANT_CALL_AIS_SAPI))
+at create-referral(create-referral/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/create-referral.xml:19 (Call invoke-ais-employment-sapi-for-create-referral))
+at post:\clients\(clientNumber)\referrals:application\json:apiConfig(post:\clients\(clientNumber)\referrals:application\json:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:50 (Call create-referral))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.749Z DEBUG [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6890: [msd-sep-accint-job-application-papi-v1].api-error-handler.CPU_INTENSIVE @49511122 - API error will be returned channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.749Z DEBUG [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6890: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - API response returned channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.75Z ERROR [9hfnm] DefaultExceptionListener event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6890: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - 
+********************************************************************************
+Message               : There was a problem while trying to access AIS Employment SAPI for referral creation
+Element               : (None)
+Element DSL           : (None)
+Error type            : EXT:CANT_CALL_AIS_SAPI
+FlowStack             : (None)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.75Z DEBUG [9hfnm] CustomLogger event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6888: [msd-sep-accint-job-application-papi-v1].api-error-handler/8/processors/2 @1313e1fa - None to alert channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:06:19.753Z DEBUG [9hfnm] apiHttpListenerConfig event:61ace8de-0daf-47fa-a2ea-c54596d35240 [MuleRuntime].uber.6890: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - LISTENER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: 8-432d-93db-455302052c90
+x-ratelimit-remaining: 59
+x-ratelimit-limit: 60
+x-ratelimit-reset: 760
+Content-Type: application/json; charset=UTF-8
+Content-Length: 244
+Date: Fri, 06 Mar 2026 01:06:19 GMT
+Connection: close
+
+{
+  "statusCode": "500",
+  "responseId": "61ace8de-0daf-47fa-a2ea-c54596d35240",
+  "error": {
+    "detail": "There was a problem while trying to access AIS Employment SAPI for referral creation",
+    "timestamp": "2026-03-06T01:06:19.749"
+  }
+} channelId=Salesforce resource=POST:/api/clients/263465387/referrals serviceId=Salesforce transactionId=8-432d-93db-455302052c90
+2026-03-06T01:07:35.003Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.02 SelectorRunner - LISTENER
+GET /api/dtrd-status?client=263465387 HTTP/1.1
+x-transaction-id: 7-42ab-99df-dde09bda8544
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-service-id: Salesforce
+x-channel-id: Salesforce
+Content-Type: application/json
+x-consumer-key: 003c7d6a01e84534885be5439bc602b9
+grant_type: client_credentials
+Authorization: Bearer eyJraWQiOiJNdWxlc29mdEpXVFNTQ2VydCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJhdWQiOiI5YTFjM2Q0OS0wY2NlLTQ2YjEtOGM3NC0xN2ExZGIyNThkY2EiLCJuYmYiOjE3NzI3NTkyNTQsImF6cCI6IjAwM2M3ZDZhMDFlODQ1MzQ4ODViZTU0MzliYzYwMmI5Iiwicm9sZXMiOiJbXCJzZXAuZGVzLm0ybTp3cml0ZVwiLFwic2VwLmRlcy5tMm06cmVhZFwiXSIsImV4cCI6MTc3Mjc1OTM3NCwiaWF0IjoxNzcyNzU5MjU0fQ.BPKORPXqAOWY5urgrAbBVlw8mE1-YTBgq3QNHR6V4B9G0A-Ji41jIbsZukkN4I0-NxZ_NZ4JP87-Ybd2nx8An9VPOeCRihHvMSv3qg23-6cmlRMXNPrf-s4LtUldFKIBMCAvtGcq05p3Rn1TXtAr_G_gaMiRAwi28ejq_WMzo7b5ogabriN4OHYcgV674FDVbZCJwtJ5BK-fM2lmiFqB-LQtIVcUW2UepuXbEh2zUQEZYf4yPcl3UzrVJilU0uFT64lOH43mIS9wqcjnqB-z8yb_g092mRfEgV1ETtB9ErFTb3IKBJMahQQ_bjL2xm0pyrKiVlbRc6kF80v89ACeBw
+User-Agent: SFDC-Callout/66.0
+SFDC_STACK_DEPTH: 1
+Accept: text/html, image/gif, image/jpeg, */*; q=0.2
+Accept-Encoding: gzip,deflate
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 141.163.193.254
+X-Correlation-Id: 5db4f213-86af-41d2-bdce-e45c77efe46b
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+2026-03-06T01:07:35.006Z INFO [9hfnm] CustomLogger event:5db4f213-86af-41d2-bdce-e45c77efe46b [MuleRuntime].uber.6891: [msd-sep-accint-job-application-papi-v1].intialize-trace.CPU_LITE @6fc93ae7 - API request received
+2026-03-06T01:07:35.008Z INFO [9hfnm] CustomLogger event:5db4f213-86af-41d2-bdce-e45c77efe46b [MuleRuntime].uber.6893: [msd-sep-accint-job-application-papi-v1].get-dtrd-status.CPU_LITE @29bb0e19 - Request received at get DTRD status flow: clientNumber=263465387 channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=7-42ab-99df-dde09bda8544
+2026-03-06T01:07:35.009Z INFO [9hfnm] CustomLogger event:5db4f213-86af-41d2-bdce-e45c77efe46b [MuleRuntime].uber.6891: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Request sent to /dtrd-status channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=7-42ab-99df-dde09bda8544
+2026-03-06T01:07:35.021Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:5db4f213-86af-41d2-bdce-e45c77efe46b [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.01 SelectorRunner - REQUESTER
+GET /api/dtrd-status?client=263465387 HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: 7-42ab-99df-dde09bda8544
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: 5db4f213-86af-41d2-bdce-e45c77efe46b
+tracestate: 
+traceparent: 00-3ad707968e1d08b06d6216d1cc559e77-27dd8cca1d6700dc-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+
+ channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=7-42ab-99df-dde09bda8544
+2026-03-06T01:07:36.051Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:5db4f213-86af-41d2-bdce-e45c77efe46b [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.01 SelectorRunner - REQUESTER
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+x-transaction-id: 7-42ab-99df-dde09bda8544
+Content-Type: application/json; charset=UTF-8
+Content-Length: 166
+Date: Fri, 06 Mar 2026 01:07:36 GMT
+x-correlation-id: 5db4f213-86af-41d2-bdce-e45c77efe46b
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "200",
+  "responseId": "7-42ab-99df-dde09bda8544",
+  "message": "DTRD status retrieved successfully",
+  "results": {
+    "isDTRDelayed": false
+  }
+} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=7-42ab-99df-dde09bda8544
+2026-03-06T01:07:36.052Z DEBUG [9hfnm] CustomLogger event:5db4f213-86af-41d2-bdce-e45c77efe46b [MuleRuntime].uber.6891: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Response received from /dtrd-status >> {"statusCode": "200","responseId": "7-42ab-99df-dde09bda8544","message": "DTRD status retrieved successfully","results": {"isDTRDelayed": false}} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=7-42ab-99df-dde09bda8544
+2026-03-06T01:07:36.052Z DEBUG [9hfnm] CustomLogger event:5db4f213-86af-41d2-bdce-e45c77efe46b [MuleRuntime].uber.6891: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Received response from SUCCESSFUL endpoint invocation in 1044 ms channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=7-42ab-99df-dde09bda8544
+2026-03-06T01:07:36.053Z INFO [9hfnm] CustomLogger event:5db4f213-86af-41d2-bdce-e45c77efe46b [MuleRuntime].uber.6893: [msd-sep-accint-job-application-papi-v1].get-dtrd-status.CPU_INTENSIVE @b659e43 - Response returned for get DTRD status flow channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=7-42ab-99df-dde09bda8544
+2026-03-06T01:07:36.053Z DEBUG [9hfnm] CustomLogger event:5db4f213-86af-41d2-bdce-e45c77efe46b [MuleRuntime].uber.6893: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - API response returned channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=7-42ab-99df-dde09bda8544
+2026-03-06T01:07:36.055Z DEBUG [9hfnm] apiHttpListenerConfig event:5db4f213-86af-41d2-bdce-e45c77efe46b [MuleRuntime].uber.6893: [msd-sep-accint-job-application-papi-v1].api-outbound-headers.CPU_INTENSIVE @62a1a244 - LISTENER
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+x-content-type-options: nosniff
+x-transaction-id: 7-42ab-99df-dde09bda8544
+access-control-allow-origin: *.msd.gov.nz
+access-control-allow-headers: Authorization, Content-Type, x-consumer-key
+access-control-allow-credentials: TRUE
+access-control-max-age: 600
+access-control-allow-methods: GET,POST,PUT,PATCH,DELETE
+x-frame-options: DENY
+referrer-policy: no-referrer
+content-security-policy: default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none'
+strict-transport-security: max-age=31536000; includeSubDomains
+set-cookie: FALSE
+cache-control: no-store
+pragma: no-cache
+x-ratelimit-remaining: 59
+x-ratelimit-limit: 60
+x-ratelimit-reset: 912
+Content-Type: application/json; charset=UTF-8
+Content-Length: 166
+Date: Fri, 06 Mar 2026 01:07:36 GMT
+
+{
+  "statusCode": "200",
+  "responseId": "7-42ab-99df-dde09bda8544",
+  "message": "DTRD status retrieved successfully",
+  "results": {
+    "isDTRDelayed": false
+  }
+} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=7-42ab-99df-dde09bda8544
+2026-03-06T01:07:50.066Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.04 SelectorRunner - LISTENER
+POST /api/clients/623156306/applications HTTP/1.1
+user-agent: Playwright/1.52.0 (x64; ubuntu 24.04) python/3.13
+accept: */*
+accept-encoding: gzip,deflate,br
+Content-Type: application/json
+x-channel-id: AEMNP
+x-service-id: JSP-03
+x-consumer-key: 8b649e1005514e1ba203b2f22939fe2d
+x-transaction-id: 8hoxf3cw-0aO9-VaPX-tkkN-EhHSLUKoE1Ug
+client_id: 8b649e1005514e1ba203b2f22939fe2d
+client_secret: 4af654fDC9be4D569b974E289E823556
+Authorization: Bearer 
+content-length: 207
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 4.199.36.103
+X-Correlation-Id: 0ae77cfb-e749-45cd-85cf-f56304809639
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+
+{"applicationForm": {"vacancyId": "91891315", "vacancyTitle": "Software Developer at Tech Corp", "hasReferences": "No", "cvPreference": "BUILD_CV_FRM_JSP", "submissionDateTime": "2026-03-06T01:07:48+00:00"}}
+2026-03-06T01:07:50.068Z DEBUG [9hfnm] apiHttpListenerConfig event:0ae77cfb-e749-45cd-85cf-f56304809639 [MuleRuntime].uber.6893: [jwt-validation-mule-7380642-api-main].7380642-client-id-enforcement.CPU_INTENSIVE @31f00a14 - LISTENER
+HTTP/1.1 401 Unauthorized
+www-authenticate: Bearer
+x-mule-ddos-violation: authentication
+Content-Type: application/json; charset=UTF-8
+Content-Length: 31
+Date: Fri, 06 Mar 2026 01:07:50 GMT
+
+{
+  "error": "Invalid token."
+}
+2026-03-06T01:07:51.238Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.04 SelectorRunner - LISTENER
+GET /api/clients/623156306/applications HTTP/1.1
+user-agent: Playwright/1.52.0 (x64; ubuntu 24.04) python/3.13
+accept: */*
+accept-encoding: gzip,deflate,br
+Content-Type: application/json
+x-channel-id: AEMNP
+x-service-id: JSP-03
+x-consumer-key: 8b649e1005514e1ba203b2f22939fe2d
+x-transaction-id: RzydtaIf-h1ef-nrIa-ekOL-ddMAU77uDTqJ
+client_id: 8b649e1005514e1ba203b2f22939fe2d
+client_secret: 4af654fDC9be4D569b974E289E823556
+Authorization: Bearer 
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 4.199.36.103
+X-Correlation-Id: e6f79d0a-1ab1-45f5-b07a-609835996e3e
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+2026-03-06T01:07:51.24Z DEBUG [9hfnm] apiHttpListenerConfig event:e6f79d0a-1ab1-45f5-b07a-609835996e3e [MuleRuntime].uber.6892: [jwt-validation-mule-7380642-api-main].7380642-client-id-enforcement.CPU_INTENSIVE @31f00a14 - LISTENER
+HTTP/1.1 401 Unauthorized
+www-authenticate: Bearer
+x-mule-ddos-violation: authentication
+Content-Type: application/json; charset=UTF-8
+Content-Length: 31
+Date: Fri, 06 Mar 2026 01:07:51 GMT
+
+{
+  "error": "Invalid token."
+}
+2026-03-06T01:07:52.391Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.04 SelectorRunner - LISTENER
+GET /api/clients/623156306/applications/APP-001 HTTP/1.1
+user-agent: Playwright/1.52.0 (x64; ubuntu 24.04) python/3.13
+accept: */*
+accept-encoding: gzip,deflate,br
+Content-Type: application/json
+x-channel-id: AEMNP
+x-service-id: JSP-03
+x-consumer-key: 8b649e1005514e1ba203b2f22939fe2d
+x-transaction-id: M5ikFaId-OL8m-2XAT-kDvW-0nZAO7lfDmN7
+client_id: 8b649e1005514e1ba203b2f22939fe2d
+client_secret: 4af654fDC9be4D569b974E289E823556
+Authorization: Bearer 
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 4.199.36.103
+X-Correlation-Id: b931c5f6-8a5e-4d78-9bb9-5b1fbe39728a
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+2026-03-06T01:07:52.393Z DEBUG [9hfnm] apiHttpListenerConfig event:b931c5f6-8a5e-4d78-9bb9-5b1fbe39728a [MuleRuntime].uber.6893: [jwt-validation-mule-7380642-api-main].7380642-client-id-enforcement.CPU_INTENSIVE @31f00a14 - LISTENER
+HTTP/1.1 401 Unauthorized
+www-authenticate: Bearer
+x-mule-ddos-violation: authentication
+Content-Type: application/json; charset=UTF-8
+Content-Length: 31
+Date: Fri, 06 Mar 2026 01:07:52 GMT
+
+{
+  "error": "Invalid token."
+}
+2026-03-06T01:07:53.614Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.04 SelectorRunner - LISTENER
+POST /api/clients/623166087/applications HTTP/1.1
+user-agent: Playwright/1.52.0 (x64; ubuntu 24.04) python/3.13
+accept: */*
+accept-encoding: gzip,deflate,br
+Content-Type: application/json
+x-channel-id: AEMNP
+x-service-id: JSP-03
+x-consumer-key: 8b649e1005514e1ba203b2f22939fe2d
+x-transaction-id: 3DhzYQ5z-yAZC-tgxZ-WTG8-iFm6bpjgQaOo
+client_id: 8b649e1005514e1ba203b2f22939fe2d
+client_secret: 4af654fDC9be4D569b974E289E823556
+Authorization: Bearer 
+content-length: 182
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 4.199.36.103
+X-Correlation-Id: f85b7e24-9ccf-48d4-8167-83d1a701e5d6
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+
+{"applicationForm": {"vacancyId": "91891315", "hasReferences": "No", "cvPreference": "BUILD_CV_FRM_JSP", "submissionDateTime": "2026-03-06T01:07:52+00:00", "profileComplete": false}}
+2026-03-06T01:07:53.616Z DEBUG [9hfnm] apiHttpListenerConfig event:f85b7e24-9ccf-48d4-8167-83d1a701e5d6 [MuleRuntime].uber.6892: [jwt-validation-mule-7380642-api-main].7380642-client-id-enforcement.CPU_INTENSIVE @31f00a14 - LISTENER
+HTTP/1.1 401 Unauthorized
+www-authenticate: Bearer
+x-mule-ddos-violation: authentication
+Content-Type: application/json; charset=UTF-8
+Content-Length: 31
+Date: Fri, 06 Mar 2026 01:07:53 GMT
+
+{
+  "error": "Invalid token."
+}
+2026-03-06T01:07:54.769Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.04 SelectorRunner - LISTENER
+POST /api/clients/623156306/applications HTTP/1.1
+user-agent: Playwright/1.52.0 (x64; ubuntu 24.04) python/3.13
+accept: */*
+accept-encoding: gzip,deflate,br
+Content-Type: application/json
+x-channel-id: AEMNP
+x-service-id: JSP-03
+x-consumer-key: 8b649e1005514e1ba203b2f22939fe2d
+x-transaction-id: SCCDZaQE-jIhO-Kd58-vksx-H0jvcXYGSPxk
+client_id: 8b649e1005514e1ba203b2f22939fe2d
+client_secret: 4af654fDC9be4D569b974E289E823556
+Authorization: Bearer 
+content-length: 192
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 4.199.36.103
+X-Correlation-Id: 5360daa5-d6f5-4a31-961a-41867c1a95c5
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+
+{"applicationForm": {"vacancyId": "91891315", "vacancyTitle": "Senior Developer", "hasReferences": "No", "cvPreference": "BUILD_CV_FRM_JSP", "submissionDateTime": "2026-03-06T01:07:53+00:00"}}
+2026-03-06T01:07:54.772Z DEBUG [9hfnm] apiHttpListenerConfig event:5360daa5-d6f5-4a31-961a-41867c1a95c5 [MuleRuntime].uber.6893: [jwt-validation-mule-7380642-api-main].7380642-client-id-enforcement.CPU_INTENSIVE @31f00a14 - LISTENER
+HTTP/1.1 401 Unauthorized
+www-authenticate: Bearer
+x-mule-ddos-violation: authentication
+Content-Type: application/json; charset=UTF-8
+Content-Length: 31
+Date: Fri, 06 Mar 2026 01:07:54 GMT
+
+{
+  "error": "Invalid token."
+}
+2026-03-06T01:08:02.936Z DEBUG [9hfnm] apiHttpListenerConfig http.listener.01 SelectorRunner - LISTENER
+GET /api/dtrd-status?client=33312390 HTTP/1.1
+x-transaction-id: 0-431a-85c7-14e7bd726399
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-service-id: Salesforce
+x-channel-id: Salesforce
+Content-Type: application/json
+x-consumer-key: 003c7d6a01e84534885be5439bc602b9
+grant_type: client_credentials
+Authorization: Bearer eyJraWQiOiJNdWxlc29mdEpXVFNTQ2VydCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJhdWQiOiI5YTFjM2Q0OS0wY2NlLTQ2YjEtOGM3NC0xN2ExZGIyNThkY2EiLCJuYmYiOjE3NzI3NTkyODIsImF6cCI6IjAwM2M3ZDZhMDFlODQ1MzQ4ODViZTU0MzliYzYwMmI5Iiwicm9sZXMiOiJbXCJzZXAuZGVzLm0ybTp3cml0ZVwiLFwic2VwLmRlcy5tMm06cmVhZFwiXSIsImV4cCI6MTc3Mjc1OTQwMiwiaWF0IjoxNzcyNzU5MjgyfQ.AsxuhazmEZZcSUunAi_nu6ZiNtXTHD3h8edtPeIbjjYaNoC0nzgQSho7CdbvYpVvwDaUP5W-3cd-5JK-2ArEGUU3TtthTZE8YkGeJnesWVxYHEyXkSO1hFXkcv-ORgAppRxbm72lYnTgMl5GAaaIMtT0aRvC0_HM-YNj8mEcM-9qTnYI2VUAbpD1oN_xsv8HCcuUBXnz-ai3n8CehG1l3xIWm30cdmSjfIcE5vUV4VskzeikkeWgeUctWVqC8w_UmS8PjZo268z8SOqnemTgdFpFOp8hzDcG1JsOWEEs8b0C8oDpDT--hM8e5_vGEwL6pADXpUKjzazgCdWzvUa6zQ
+User-Agent: SFDC-Callout/66.0
+SFDC_STACK_DEPTH: 1
+Accept: text/html, image/gif, image/jpeg, */*; q=0.2
+Accept-Encoding: gzip,deflate
+Via: EDGE/1.1 MuleSoft
+X-Forwarded-For: 141.163.193.254
+X-Correlation-Id: bd135f2d-bdd7-4f97-a6fb-21353b246838
+X-Forwarded-Host: job-application-papi-v1.acc-int.mule.sep.msd.govt.nz
+X-Forwarded-Proto: https
+Host: msd-sep-accint-job-application-papi-v1.050bd70e-7030-4724-b756-b20e200d8c67.svc.cluster.local
+X-SSL-Client-Verify: NONE
+2026-03-06T01:08:02.938Z INFO [9hfnm] CustomLogger event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6893: [msd-sep-accint-job-application-papi-v1].intialize-trace.CPU_LITE @6fc93ae7 - API request received
+2026-03-06T01:08:02.939Z INFO [9hfnm] CustomLogger event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6891: [msd-sep-accint-job-application-papi-v1].get-dtrd-status.CPU_LITE @29bb0e19 - Request received at get DTRD status flow: clientNumber=33312390 channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:02.94Z INFO [9hfnm] CustomLogger event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6892: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Request sent to /dtrd-status channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:02.944Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.02 SelectorRunner - REQUESTER
+GET /api/dtrd-status?client=33312390 HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: 0-431a-85c7-14e7bd726399
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: bd135f2d-bdd7-4f97-a6fb-21353b246838
+tracestate: 
+traceparent: 00-05db73d53849c65472dcb5a6b4e144f5-4d1ee068ff8ae924-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+
+ channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:14.001Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.02 SelectorRunner - REQUESTER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: 0-431a-85c7-14e7bd726399
+Content-Type: application/json; charset=UTF-8
+Content-Length: 245
+Date: Fri, 06 Mar 2026 01:08:13 GMT
+x-correlation-id: bd135f2d-bdd7-4f97-a6fb-21353b246838
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "500",
+  "responseId": "bd135f2d-bdd7-4f97-a6fb-21353b246838",
+  "error": {
+    "detail": "There was a problem while trying to fetch Client's Drug Test Referral Review from AIS",
+    "timestamp": "2026-03-06T01:08:13.997"
+  }
+} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:14.002Z ERROR [9hfnm] DefaultExceptionListener event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6892: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - 
+********************************************************************************
+Message               : HTTP GET on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/dtrd-status' failed: internal server error (500).
+Element               : call-ais-employment-sapi-for-get-dtrd-status/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:59 (Request To AIS Employment SAPI Get DTRD Status)
+Element DSL           : <http:request method="GET" doc:name="Request To AIS Employment SAPI Get DTRD Status" doc:id="618c1165-e384-4caf-8077-46c38caede5f" config-ref="aisEmploymentSapiHttpRequestConfig" path="${internal.ais-employment-sapi.endpoints.getDtrdStatus}" sendCorrelationId="ALWAYS" correlationId="#[correlationId]">
+<http:headers><![CDATA[#[output application/java
+---
+{
+	"Accept": attributes.headers."accept",
+	"x-transaction-id": attributes.headers."x-transaction-id",
+	"client_id" : p('secure::internal.mule.clientId'),
+	"client_secret": p('secure::internal.mule.clientSecret'),
+	"x-channel-id": p('internal.ais-employment-sapi.sourceSystem'),
+	"x-service-id": attributes.headers."x-service-id",
+	"Content-type": "application/json"
+}]]]></http:headers>
+<http:query-params><![CDATA[#[output application/java
+---
+{
+	"client": attributes.queryParams.client
+}]]]></http:query-params>
+</http:request>
+Error type            : HTTP:INTERNAL_SERVER_ERROR
+FlowStack             : at call-ais-employment-sapi-for-get-dtrd-status(call-ais-employment-sapi-for-get-dtrd-status/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:59 (Request To AIS Employment SAPI Get DTRD Status))
+at invoke-endpoint-until-successful(invoke-endpoint-until-successful/processors/5/processors/0/processors/0/processors/0 @ msd-sep-accint-job-application-papi-v1:retryable-invoke.xml:46 (Call vars.invokeEndpointFlow))
+at invoke-ais-employment-sapi-for-get-dtrd-status(invoke-ais-employment-sapi-for-get-dtrd-status/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:47 (Call invoke-endpoint-until-successful))
+at get-dtrd-status(get-dtrd-status/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:19 (Call invoke-ais-employment-sapi-for-get-dtrd-status))
+at get:\dtrd-status:apiConfig(get:\dtrd-status:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:47 (Call get-dtrd-status))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:14.003Z ERROR [9hfnm] UntilSuccessfulRouter event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6892: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - Scheduling retry execution of event, attempt 1 of 1. channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:14.003Z ERROR [9hfnm] CustomLogger event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6892: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - A transient error occurred while invoking endpoint (HTTP:INTERNAL_SERVER_ERROR HTTP GET on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/dtrd-status' failed: internal server error (500).) - triggering re-try channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:17.004Z INFO [9hfnm] CustomLogger event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6891: [msd-sep-accint-job-application-papi-v1].call-ais-employment-sapi-for-get-dtrd-status.CPU_LITE @1e4c295a - Request sent to /dtrd-status channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:17.016Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.01 SelectorRunner - REQUESTER
+GET /api/dtrd-status?client=33312390 HTTP/1.1
+accept: text/html, image/gif, image/jpeg, */*; q=0.2
+x-transaction-id: 0-431a-85c7-14e7bd726399
+client_id: 003c7d6a01e84534885be5439bc602b9
+client_secret: 4af654fDC9be4D569b974E289E823556
+x-channel-id: SEP
+x-service-id: Salesforce
+x-anypnt-app-worker: 0CDDF2D796F4E77DCE2BB711C3CF153F
+x-correlation-id: bd135f2d-bdd7-4f97-a6fb-21353b246838
+tracestate: 
+traceparent: 00-05db73d53849c65472dcb5a6b4e144f5-fe2f2ed250811816-00
+Host: msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443
+User-Agent: AHC/1.0
+Connection: keep-alive
+Content-Type: application/json
+
+ channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:26.756Z DEBUG [9hfnm] aisEmploymentSapiHttpRequestConfig event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [msd-sep-accint-job-application-papi-v1].http.requester.aisEmploymentSapiHttpRequestConfig.01 SelectorRunner - REQUESTER
+HTTP/1.1 500 Server Error
+x-content-type-options: nosniff
+x-transaction-id: 0-431a-85c7-14e7bd726399
+Content-Type: application/json; charset=UTF-8
+Content-Length: 245
+Date: Fri, 06 Mar 2026 01:08:26 GMT
+x-correlation-id: bd135f2d-bdd7-4f97-a6fb-21353b246838
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Connection: Keep-Alive
+
+{
+  "statusCode": "500",
+  "responseId": "bd135f2d-bdd7-4f97-a6fb-21353b246838",
+  "error": {
+    "detail": "There was a problem while trying to fetch Client's Drug Test Referral Review from AIS",
+    "timestamp": "2026-03-06T01:08:26.752"
+  }
+} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:26.757Z ERROR [9hfnm] DefaultExceptionListener event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6891: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - 
+********************************************************************************
+Message               : HTTP GET on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/dtrd-status' failed: internal server error (500).
+Element               : call-ais-employment-sapi-for-get-dtrd-status/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:59 (Request To AIS Employment SAPI Get DTRD Status)
+Element DSL           : <http:request method="GET" doc:name="Request To AIS Employment SAPI Get DTRD Status" doc:id="618c1165-e384-4caf-8077-46c38caede5f" config-ref="aisEmploymentSapiHttpRequestConfig" path="${internal.ais-employment-sapi.endpoints.getDtrdStatus}" sendCorrelationId="ALWAYS" correlationId="#[correlationId]">
+<http:headers><![CDATA[#[output application/java
+---
+{
+	"Accept": attributes.headers."accept",
+	"x-transaction-id": attributes.headers."x-transaction-id",
+	"client_id" : p('secure::internal.mule.clientId'),
+	"client_secret": p('secure::internal.mule.clientSecret'),
+	"x-channel-id": p('internal.ais-employment-sapi.sourceSystem'),
+	"x-service-id": attributes.headers."x-service-id",
+	"Content-type": "application/json"
+}]]]></http:headers>
+<http:query-params><![CDATA[#[output application/java
+---
+{
+	"client": attributes.queryParams.client
+}]]]></http:query-params>
+</http:request>
+Error type            : HTTP:INTERNAL_SERVER_ERROR
+FlowStack             : at call-ais-employment-sapi-for-get-dtrd-status(call-ais-employment-sapi-for-get-dtrd-status/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:59 (Request To AIS Employment SAPI Get DTRD Status))
+at invoke-endpoint-until-successful(invoke-endpoint-until-successful/processors/5/processors/0/processors/0/processors/0 @ msd-sep-accint-job-application-papi-v1:retryable-invoke.xml:46 (Call vars.invokeEndpointFlow))
+at invoke-ais-employment-sapi-for-get-dtrd-status(invoke-ais-employment-sapi-for-get-dtrd-status/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:47 (Call invoke-endpoint-until-successful))
+at get-dtrd-status(get-dtrd-status/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:19 (Call invoke-ais-employment-sapi-for-get-dtrd-status))
+at get:\dtrd-status:apiConfig(get:\dtrd-status:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:47 (Call get-dtrd-status))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:26.758Z ERROR [9hfnm] CustomLogger event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6891: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - A transient error occurred while invoking endpoint (HTTP:INTERNAL_SERVER_ERROR HTTP GET on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/dtrd-status' failed: internal server error (500).) - triggering re-try channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:26.758Z ERROR [9hfnm] UntilSuccessfulRouter event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6891: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - Retry attempts exhausted. Failing... channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:26.759Z ERROR [9hfnm] CustomLogger event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6891: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - Exhausted re-tries invoking endpoint (MULE:RETRY_EXHAUSTED HTTP GET on resource 'https://msd-sep-accint-ais-emp-sapi-v1-7cdsdm.internal-235m1o.aus-s1.cloudhub.io:443/api/dtrd-status' failed: internal server error (500).) - giving up channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:26.759Z DEBUG [9hfnm] CustomLogger event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6891: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - Received response from FAILED endpoint invocation in 23819 ms channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:26.761Z ERROR [9hfnm] CustomLogger event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6891: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - Error calling Backend API: EXT:CANT_CALL_AIS_SAPI There was a problem while trying to access AIS Employment SAPI for DTRD status << {
+  statusCode: "500",
+  responseId: "bd135f2d-bdd7-4f97-a6fb-21353b246838",
+  error: {
+    detail: "There was a problem while trying to fetch Client's Drug Test Referral Review from AIS",
+    timestamp: "2026-03-06T01:08:26.752"
+  }
+} as Object {encoding: "UTF-8", mediaType: "application/json; charset=UTF-8", mimeType: "application/json"} channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399
+2026-03-06T01:08:26.761Z ERROR [9hfnm] DefaultExceptionListener event:bd135f2d-bdd7-4f97-a6fb-21353b246838 [MuleRuntime].uber.6891: (chain) of 'call-ais-employment-sapi-for-get-dtrd-status' processor chain.switchOnErrorScheduler @6e25ca3a - 
+********************************************************************************
+Message               : There was a problem while trying to access AIS Employment SAPI for DTRD status
+Element               : invoke-ais-employment-sapi-for-get-dtrd-status/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:48 (Successful else raise EXT:CANT_CALL_AIS_SAPI)
+Element DSL           : <validation:is-true doc:name="Successful else raise EXT:CANT_CALL_AIS_SAPI" doc:id="1a43e4bb-4ee2-43d6-943d-ec46060b6bf1" expression="#[vars.successful]" message="#[p('messages.getDtrdStatusBackendError')]">
+<error-mapping targetType="EXT:CANT_CALL_AIS_SAPI"></error-mapping>
+</validation:is-true>
+Error type            : EXT:CANT_CALL_AIS_SAPI
+FlowStack             : at invoke-ais-employment-sapi-for-get-dtrd-status(invoke-ais-employment-sapi-for-get-dtrd-status/processors/2 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:48 (Successful else raise EXT:CANT_CALL_AIS_SAPI))
+at get-dtrd-status(get-dtrd-status/processors/1 @ msd-sep-accint-job-application-papi-v1:impl/get-dtrd-status.xml:19 (Call invoke-ais-employment-sapi-for-get-dtrd-status))
+at get:\dtrd-status:apiConfig(get:\dtrd-status:apiConfig/processors/0 @ msd-sep-accint-job-application-papi-v1:api.xml:47 (Call get-dtrd-status))
+at api-main(api-main/processors/1 @ msd-sep-accint-job-application-papi-v1:api.xml:25)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+ channelId=Salesforce resource=GET:/api/dtrd-status serviceId=Salesforce transactionId=0-431a-85c7-14e7bd726399

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Error Grouping Test</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+    .test { margin: 20px 0; padding: 15px; background: white; border-left: 4px solid #007bff; }
+    .pass { border-left-color: #28a745; }
+    .fail { border-left-color: #dc3545; }
+    h2 { margin: 0 0 10px 0; }
+    pre { margin: 10px 0; overflow-x: auto; background: #f8f9fa; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Error Card Grouping Test</h1>
+  <div id="results"></div>
+
+  <script>
+    // Copy of groupLogsByCorrelationId function from app.js
+    function groupLogsByCorrelationId(logs) {
+      const grouped = {};
+      
+      logs.forEach((log, originalIndex) => {
+        const correlationId = log.event_id || 'unknown';
+        
+        if (!grouped[correlationId]) {
+          grouped[correlationId] = {
+            correlationId: correlationId,
+            logs: [],
+            originalIndices: [],
+            firstLog: log,
+            errorCount: 0
+          };
+        }
+        
+        grouped[correlationId].logs.push(log);
+        grouped[correlationId].originalIndices.push(originalIndex);
+        grouped[correlationId].errorCount = grouped[correlationId].logs.length;
+      });
+      
+      return Object.values(grouped).sort((a, b) => {
+        const timeA = new Date(a.firstLog.timestamp || 0).getTime();
+        const timeB = new Date(b.firstLog.timestamp || 0).getTime();
+        return timeA - timeB;
+      });
+    }
+
+    // Run tests
+    const results = [];
+
+    // Test 1: No duplicate correlation IDs
+    let logs = [
+      { event_id: 'abc-123', timestamp: '2026-03-10T10:00:00Z', message: 'Error 1' },
+      { event_id: 'def-456', timestamp: '2026-03-10T10:01:00Z', message: 'Error 2' },
+      { event_id: 'ghi-789', timestamp: '2026-03-10T10:02:00Z', message: 'Error 3' }
+    ];
+    let grouped = groupLogsByCorrelationId(logs);
+    results.push({
+      name: 'Test 1: No duplicates',
+      pass: grouped.length === 3 && grouped.every((g, i) => g.errorCount === 1),
+      details: `Created ${grouped.length} groups (expected 3), each with 1 error`
+    });
+
+    // Test 2: Some duplicate correlation IDs
+    logs = [
+      { event_id: 'abc-123', timestamp: '2026-03-10T10:00:00Z', message: 'Error 1' },
+      { event_id: 'abc-123', timestamp: '2026-03-10T10:01:00Z', message: 'Error 2 (duplicate)' },
+      { event_id: 'def-456', timestamp: '2026-03-10T10:02:00Z', message: 'Error 3' },
+      { event_id: 'abc-123', timestamp: '2026-03-10T10:03:00Z', message: 'Error 4 (duplicate)' }
+    ];
+    grouped = groupLogsByCorrelationId(logs);
+    const group1 = grouped.find(g => g.correlationId === 'abc-123');
+    results.push({
+      name: 'Test 2: Multiple duplicates',
+      pass: grouped.length === 2 && group1 && group1.errorCount === 3,
+      details: `Created ${grouped.length} groups (expected 2), group 'abc-123' has ${group1?.errorCount || 0} errors (expected 3)`
+    });
+
+    // Test 3: Sorting by timestamp
+    logs = [
+      { event_id: 'xyz-999', timestamp: '2026-03-10T10:05:00Z', message: 'Error 5' },
+      { event_id: 'abc-123', timestamp: '2026-03-10T10:00:00Z', message: 'Error 1' },
+      { event_id: 'def-456', timestamp: '2026-03-10T10:02:00Z', message: 'Error 3' }
+    ];
+    grouped = groupLogsByCorrelationId(logs);
+    results.push({
+      name: 'Test 3: Sorted by timestamp',
+      pass: grouped[0].correlationId === 'abc-123' && grouped[1].correlationId === 'def-456' && grouped[2].correlationId === 'xyz-999',
+      details: `Order: ${grouped.map(g => g.correlationId).join(' -> ')} (expected abc-123 -> def-456 -> xyz-999)`
+    });
+
+    // Test 4: All same correlation ID
+    logs = [
+      { event_id: 'same-123', timestamp: '2026-03-10T10:00:00Z', message: 'Error 1' },
+      { event_id: 'same-123', timestamp: '2026-03-10T10:01:00Z', message: 'Error 2' },
+      { event_id: 'same-123', timestamp: '2026-03-10T10:02:00Z', message: 'Error 3' },
+      { event_id: 'same-123', timestamp: '2026-03-10T10:03:00Z', message: 'Error 4' }
+    ];
+    grouped = groupLogsByCorrelationId(logs);
+    results.push({
+      name: 'Test 4: All same correlation ID',
+      pass: grouped.length === 1 && grouped[0].errorCount === 4,
+      details: `Created ${grouped.length} group (expected 1) with ${grouped[0].errorCount} errors (expected 4)`
+    });
+
+    // Test 5: Missing correlation IDs
+    logs = [
+      { timestamp: '2026-03-10T10:00:00Z', message: 'Error 1' },
+      { timestamp: '2026-03-10T10:01:00Z', message: 'Error 2' },
+      { event_id: 'abc-123', timestamp: '2026-03-10T10:02:00Z', message: 'Error 3' }
+    ];
+    grouped = groupLogsByCorrelationId(logs);
+    const unknownGroup = grouped.find(g => g.correlationId === 'unknown');
+    results.push({
+      name: 'Test 5: Missing correlation IDs',
+      pass: grouped.length === 2 && unknownGroup && unknownGroup.errorCount === 2,
+      details: `Created ${grouped.length} groups (expected 2), 'unknown' group has ${unknownGroup?.errorCount || 0} errors (expected 2)`
+    });
+
+    // Render results
+    const resultsDiv = document.getElementById('results');
+    const html = results.map(r => `
+      <div class="test ${r.pass ? 'pass' : 'fail'}">
+        <h2>${r.pass ? '✓ PASS' : '✗ FAIL'} - ${r.name}</h2>
+        <pre>${r.details}</pre>
+      </div>
+    `).join('');
+    resultsDiv.innerHTML = html;
+
+    const passCount = results.filter(r => r.pass).length;
+    const totalCount = results.length;
+    console.log(`\n✓ Test Results: ${passCount}/${totalCount} tests passed`);
+  </script>
+</body>
+</html>
