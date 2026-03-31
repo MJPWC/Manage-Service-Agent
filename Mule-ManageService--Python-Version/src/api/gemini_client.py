@@ -2,7 +2,6 @@
 """GeminiClient — extends BaseLLMClient."""
 
 import os
-from typing import Any, Dict
 import requests
 from dotenv import load_dotenv
 from .base_client import BaseLLMClient

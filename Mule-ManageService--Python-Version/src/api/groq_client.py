@@ -7,7 +7,6 @@ and optimized temperature settings for analysis vs code generation tasks.
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
 
 import requests
 from dotenv import load_dotenv
@@ -196,11 +195,6 @@ class GroqClient:
 
                 print(f"[GroqClient] HTTP {response.status_code} error: {error_body}")
 
-                err = {
-                    "error": True,
-                    "status_code": response.status_code,
-                    "message": str(error_body),
-                }
                 # Attach status code for retryability check in LLM manager
                 exc = Exception(f"Groq API error {response.status_code}: {error_body}")
                 exc.status = response.status_code
@@ -382,11 +376,6 @@ CRITICAL OUTPUT REQUIREMENTS:
 - Always provide at least 2 numbered Immediate Actions
 - Reference specific file names and line numbers extracted from the error when available
 - Use the FlowStack to trace the exact error propagation path"""
-
-            # Build user message with full context
-            file_ext = (
-                reference_file_extension.lower() if reference_file_extension else "text"
-            )
 
             user_content_parts = [
                 f"**User Question:** {user_prompt}",

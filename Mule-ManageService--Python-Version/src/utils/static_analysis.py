@@ -455,8 +455,8 @@ output application/json
         lines = content.splitlines()
 
         # ── Header check ─────────────────────────────────────────────────────
-        has_dw_header = any(re.match(r"^\s*%dw\s+2\.0", l) for l in lines[:5])
-        has_output = any(re.match(r"^\s*output\s+\w+", l) for l in lines[:10])
+        has_dw_header = any(re.match(r"^\s*%dw\s+2\.0", line) for line in lines[:5])
+        has_output = any(re.match(r"^\s*output\s+\w+", line) for line in lines[:10])
 
         if not has_dw_header:
             issues.append(
@@ -1158,7 +1158,7 @@ output application/json
             missing_ns = orig_ns - gen_ns
             if missing_ns:
                 errors.append(
-                    f"Generated XML is missing namespace declarations: "
+                    "Generated XML is missing namespace declarations: "
                     + ", ".join(sorted(missing_ns))
                 )
 

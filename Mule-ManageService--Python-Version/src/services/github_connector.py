@@ -47,7 +47,7 @@ class GitHubAuthenticator:
                     try:
                         error_data = response.json()
                         error_msg += f" - {error_data.get('message', '')}"
-                    except:
+                    except Exception:
                         pass
                 return False, error_msg
                 

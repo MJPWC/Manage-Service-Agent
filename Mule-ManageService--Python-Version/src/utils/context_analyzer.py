@@ -5,7 +5,7 @@ Provides project-wide context analysis and related file impact assessment
 
 import os
 import re
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Set, Tuple
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 
@@ -53,7 +53,7 @@ class MuleSoftContextAnalyzer:
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-        except:
+        except Exception:
             return FileContext(relative_path, file_type, set(), set(), [], [], False)
         
         dependencies = set()
@@ -200,7 +200,6 @@ class MuleSoftContextAnalyzer:
         if file_path not in self.file_index:
             return impact
         
-        context = self.file_index[file_path]
         related_files = self.get_related_files(file_path)
         
         # Analyze change type
@@ -246,8 +245,6 @@ class MuleSoftContextAnalyzer:
         
         if file_path not in self.file_index:
             return suggestions
-        
-        context = self.file_index[file_path]
         
         # If error is about missing configuration, suggest checking related files
         if "config" in error_message.lower():

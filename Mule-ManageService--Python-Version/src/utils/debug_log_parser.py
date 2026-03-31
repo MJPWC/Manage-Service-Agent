@@ -6,10 +6,9 @@ Extracts API information, flow stack analysis, and error details
 """
 
 import re
-from typing import Dict, List, Optional, Tuple, Any
+from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
-from datetime import datetime
 
 
 class LogFileType(Enum):
@@ -538,12 +537,12 @@ def format_analysis_report(analysis: LogAnalysis) -> str:
     report.append("=" * 80)
     
     # File and Logger Info
-    report.append(f"\n📋 LOG TYPE DETECTION")
+    report.append("\n📋 LOG TYPE DETECTION")
     report.append(f"  File Type:   {analysis.file_type.value}")
     report.append(f"  Logger Type: {analysis.logger_type.value}")
     
     # Timestamps and IDs
-    report.append(f"\n🕐 TIMESTAMPS AND IDENTIFIERS")
+    report.append("\n🕐 TIMESTAMPS AND IDENTIFIERS")
     report.append(f"  Timestamp:       {analysis.timestamp or 'N/A'}")
     report.append(f"  Correlation ID:  {analysis.correlation_id or 'N/A'}")
     report.append(f"  Channel ID:      {analysis.channel_id or 'N/A'}")
@@ -552,14 +551,14 @@ def format_analysis_report(analysis: LogAnalysis) -> str:
     report.append(f"  Resource:        {analysis.resource or 'N/A'}")
     
     # Error Information
-    report.append(f"\n❌ ERROR INFORMATION")
+    report.append("\n❌ ERROR INFORMATION")
     report.append(f"  Error Type:  {analysis.error_type or 'N/A'}")
     report.append(f"  Message:     {analysis.error_message or 'N/A'}")
     report.append(f"  Element:     {analysis.element or 'N/A'}")
     
     # Error Location
     if analysis.error_location:
-        report.append(f"\n📍 ERROR LOCATION")
+        report.append("\n📍 ERROR LOCATION")
         loc = analysis.error_location
         report.append(f"  API Name:        {loc.api_name}")
         report.append(f"  File Name:       {loc.file_name}")
