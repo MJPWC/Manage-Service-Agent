@@ -6436,7 +6436,11 @@
         console.log(" Step 4: Sending to unified analysis function...");
         
         // Directly call unified analysis function to avoid duplicate API calls
-        window.analyzeErrorWithRulesetUnified(0, fileList, fileContents);
+        if (typeof window.analyzeErrorWithRulesetUnified === "function") {
+          await window.analyzeErrorWithRulesetUnified(0, fileList, fileContents);
+        } else {
+          throw new Error("Unified analysis function is not available");
+        }
       } else {
         setEventDetailsFlowState("attach");
         hideLoading();
@@ -6447,6 +6451,9 @@
       hideLoading();
       console.error(" Error in multi-file analysis:", error);
       alert(`Multi-file analysis failed: ${error.message}`);
+    } finally {
+      // Ensure spinner always stops (success or failure).
+      hideLoading();
     }
   }
 
@@ -6492,13 +6499,20 @@ window.analyzeErrorWithRulesetUnified = async function(logIndex = 0, fileList = 
   const prompt =
     "Analyze this MuleSoft error using the error-analysis ruleset. Output ALL required sections with bold section headers (e.g., **Summary**, **Quick Fix**, etc.). Do not omit any section even if values are N/A.";
   
-  // Single API call to /api/error/analyze
-  const response = await api("POST", "/api/error/analyze", {
-    content: content,
-    prompt: prompt,
-    file_path: filePath,
-    ruleset: "error-analysis-rules.txt",
-  });
+  let response;
+  try {
+    // Single API call to /api/error/analyze
+    response = await api("POST", "/api/error/analyze", {
+      content: content,
+      prompt: prompt,
+      file_path: filePath,
+      ruleset: "error-analysis-rules.txt",
+    });
+  } catch (err) {
+    // Stop spinner if the request fails before rendering.
+    hideLoading();
+    throw err;
+  }
   
   // Use same renderAnalysisWithRefine for both
   const resultDiv = document.getElementById("errorAnalysisResult");
@@ -6536,6 +6550,9 @@ window.analyzeErrorWithRulesetUnified = async function(logIndex = 0, fileList = 
       }
     }
   );
+
+  // Stop spinner once the initial render is complete.
+  hideLoading();
 };
 
 // Expose state, api, elements and functions to global scope for other scripts
