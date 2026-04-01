@@ -9,6 +9,11 @@
   }
 
   function closeEventDetailsModal() {
+    // Hide loading spinner if it's visible
+    if (typeof global.hideLoading === "function") {
+      global.hideLoading();
+    }
+    
     removeModalById("eventDetailsModal");
     removeModalById("aiAnalysisModal");
     removeModalById("customPromptModal");

@@ -237,7 +237,7 @@
         const isMuledev = assignmentGroupName.toLowerCase() === "muledev";
         const assignmentGroupHtml = `<span class="snow-ag-badge${isMuledev ? " snow-ag-muledev" : ""}">${escapeHtml(assignmentGroupName)}</span>`;
         const ticketHtml = item.incidentNumber
-          ? `<a class="snow-ticket-link" href="${state.servicenowBaseUrl}/incident.do?sys_id=${item.incidentSysId || ""}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="Open ${item.incidentNumber} in ServiceNow">${item.incidentNumber}</a> <span class="snow-status-badge snow-status-${getSnowStatusClass(item.incidentStatus)}">${getSnowStatusText(item.incidentStatus)}</span>`
+          ? `<a class="snow-ticket-link" href="${state.servicenowBaseUrl}/incident.do?sys_id=${item.incidentSysId || ""}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="Open ${item.incidentNumber} in ServiceNow">${item.incidentNumber}</a>`
           : '<span class="snow-no-ticket">—</span>';
 
         return `
@@ -253,14 +253,7 @@
           <div class="correlation-cell ag">${assignmentGroupHtml}</div>
           <div class="correlation-cell time">${escapeHtml(timestamp || "—")}</div>
           <div class="correlation-cell status">
-            <select class="status-select" data-event-id="${escapeHtml(item.event_id)}" value="${escapeHtml(currentStatus)}" onclick="event.stopPropagation()">
-              <option value="pending" ${currentStatus === "pending" ? "selected" : ""}>Pending</option>
-              <option value="inprogress" ${currentStatus === "inprogress" ? "selected" : ""}>In Progress</option>
-              <option value="complete" ${currentStatus === "complete" ? "selected" : ""}>Complete</option>
-              <option value="resolved" ${currentStatus === "resolved" ? "selected" : ""}>Resolved</option>
-              <option value="closed" ${currentStatus === "closed" ? "selected" : ""}>Closed</option>
-            </select>
-            <span class="status-badge ${statusClass}">${escapeHtml(currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1))}</span>
+            <span class="snow-status-badge snow-status-${getSnowStatusClass(item.incidentStatus)}">${getSnowStatusText(item.incidentStatus)}</span>
           </div>
           <div class="correlation-cell ticket" onclick="event.stopPropagation()">
             ${ticketHtml}

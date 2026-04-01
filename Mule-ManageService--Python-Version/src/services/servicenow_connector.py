@@ -401,6 +401,156 @@ Investigation Steps:
             print(f"Error retrieving ServiceNow incident: {e}")
             return None
 
+    def get_incidents_by_correlation_ids(self, correlation_ids: List[str]) -> List[Dict]:
+        """Fetch incidents for specific correlation IDs using IN clause
+        
+        Args:
+            correlation_ids: List of correlation IDs to search for
+            
+        Returns:
+            List of dictionaries normalized for correlation ID UI
+        """
+        try:
+            url = f"{self.base_url}/api/now/table/incident"
+            
+            # Build IN clause query for correlation IDs
+            correlation_id_list = ",".join(correlation_ids)
+            sysparm_query = f"correlation_idIN{correlation_id_list}^ORu_correlation_idIN{correlation_id_list}"
+            
+            # Fields to return
+            sysparm_fields = (
+                "sys_id,number,state,short_description,work_notes,"
+                "correlation_id,u_correlation_id,"
+                "assignment_group,assignment_group.name,"
+                "assigned_to,assigned_to.name,"
+                "caller_id,cmdb_ci,"
+                "u_api_name,u_application_name,"
+                "sys_created_on,sys_updated_on"
+            )
+            
+            params = {
+                "sysparm_query": sysparm_query,
+                "sysparm_fields": sysparm_fields,
+                "sysparm_limit": str(len(correlation_ids) * 2),  # Allow for both correlation_id and u_correlation_id matches
+                "sysparm_display_value": "true",  # resolve reference fields
+            }
+            
+            # Construct full URL for logging
+            full_url = f"{url}?sysparm_query={sysparm_query}&sysparm_fields={sysparm_fields}&sysparm_limit={len(correlation_ids) * 2}&sysparm_display_value=true"
+            #print(f"[SERVICENOW] Hitting API URL: {full_url}")
+            
+            response = requests.get(
+                url,
+                headers=self._get_headers(),
+                params=params,
+                timeout=self.request_timeout,
+            )
+
+            if not (200 <= response.status_code < 300):
+                print(
+                    f"ServiceNow incident fetch failed: {response.status_code} {response.text}"
+                )
+                return []
+
+            data = response.json()
+            incidents = data.get("result", [])
+            
+            ##print(f"[SERVICENOW] Raw response: {len(incidents)} incidents found")
+            
+            # Process incidents (same logic as get_incidents_for_assignee)
+            rows: List[Dict] = []
+            for incident in incidents:
+                raw_correlation_id = str(
+                    incident.get("correlation_id")
+                    or incident.get("u_correlation_id")
+                    or ""
+                ).strip()
+                incident_number = str(incident.get("number") or "").strip()
+                
+                correlation_id = (
+                    raw_correlation_id
+                    or incident_number
+                    or str(incident.get("sys_id") or "").strip()
+                )
+                
+                if not correlation_id:
+                    continue
+                
+                updated_on = str(incident.get("sys_updated_on") or "").strip()
+                created_on = str(incident.get("sys_created_on") or "").strip()
+                latest_timestamp = updated_on or created_on
+
+                # Helper to safely extract the display string
+                def _display(field):
+                    val = incident.get(field)
+                    if isinstance(val, dict):
+                        return str(
+                            val.get("display_value") or val.get("value") or ""
+                        ).strip()
+                    return str(val or "").strip()
+
+                app_name = (
+                    _display("u_api_name")
+                    or _display("u_application_name")
+                    or _display("cmdb_ci")
+                    or _display("caller_id")
+                    or "Unknown"
+                )
+
+                assignment_group_name = _display("assignment_group.name")
+                assigned_to_name = _display("assigned_to")
+
+                # Extract RCA from work_notes
+                wn_raw = incident.get("work_notes")
+                if isinstance(wn_raw, dict):
+                    raw_work_notes = str(
+                        wn_raw.get("display_value") or wn_raw.get("value") or ""
+                    )
+                else:
+                    raw_work_notes = str(wn_raw or "")
+
+                rca_text = ""
+                rca_delimiter = "=== ROOT CAUSE ANALYSIS ==="
+                upper_wn = raw_work_notes.upper()
+                delim_pos = upper_wn.find(rca_delimiter)
+
+                if delim_pos != -1:
+                    after_delim = raw_work_notes[delim_pos + len(rca_delimiter) :]
+                    next_sections = ["Investigation Steps:", "INVESTIGATION STEPS:"]
+                    stop_pos = len(after_delim)
+                    for ns in next_sections:
+                        ns_pos = after_delim.upper().find(ns.upper())
+                        if ns_pos != -1:
+                            stop_pos = min(stop_pos, ns_pos)
+                    rca_text = after_delim[:stop_pos].strip()
+
+                rows.append(
+                    {
+                        "correlationId": correlation_id,
+                        "rawCorrelationId": raw_correlation_id,
+                        "hasCorrelationId": bool(raw_correlation_id),
+                        "apiName": str(app_name),
+                        "incidentSysId": str(incident.get("sys_id") or ""),
+                        "incidentNumber": str(incident.get("number") or ""),
+                        "incidentStatus": str(incident.get("state") or ""),
+                        "assignmentGroup": assignment_group_name,
+                        "assignedTo": assigned_to_name,
+                        "createdAt": latest_timestamp,
+                        "shortDescription": str(
+                            incident.get("short_description") or ""
+                        ),
+                        "rca": str(
+                            incident.get("work_notes") or ""
+                        ),
+                    }
+                )
+
+            return rows
+
+        except Exception as e:
+            print(f"Error fetching ServiceNow incidents by correlation IDs: {e}")
+            return []
+
     def get_incidents_for_assignee(
         self,
         assignee_name: str = "Muledev",

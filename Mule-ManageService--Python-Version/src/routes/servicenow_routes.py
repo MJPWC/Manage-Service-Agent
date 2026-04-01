@@ -190,6 +190,67 @@ def register_servicenow_routes(app):
                             pass
                         filtered.append(row)
                     correlation_ids = filtered
+
+                # Direct ServiceNow API call with correlation IDs from local file
+                try:
+                    # Extract correlation IDs from local file
+                    local_correlation_ids = [
+                        corr_id.get("correlationId", "")
+                        for corr_id in correlation_ids
+                        if corr_id.get("correlationId")
+                    ]
+                    print(
+                        f"[DEBUG] Found {len(local_correlation_ids)} local correlation IDs: {local_correlation_ids[:5]}"
+                    )
+
+                    if local_correlation_ids:
+                        # Reuse existing ServiceNow connector with specific correlation IDs
+                        servicenow = get_servicenow_connector()
+                        snow_incidents = servicenow.get_incidents_by_correlation_ids(local_correlation_ids)
+                       # print(f"[DEBUG] Found {len(snow_incidents)} matching ServiceNow incidents")
+                        #print(f"[DEBUG] response matching ServiceNow incidents is: {snow_incidents}")
+                        # Create a mapping of correlation IDs to ServiceNow incidents
+                        snow_incident_map = {}
+                        for incident in snow_incidents:
+                            correlation_id = str(
+                                incident.get("rawCorrelationId") or incident.get("correlationId") or ""
+                            ).strip()
+                            if correlation_id:
+                                snow_incident_map[correlation_id] = incident
+                        
+                        # Update local correlation IDs with ServiceNow information
+                        matches_found = 0
+                        for corr_id in correlation_ids:
+                            local_correlation_id = corr_id.get("correlationId", "")
+                            if local_correlation_id in snow_incident_map:
+                                matches_found += 1
+                                snow_incident = snow_incident_map[local_correlation_id]
+                                corr_id.update({
+                                    "incidentSysId": snow_incident.get("incidentSysId", ""),
+                                    "incidentNumber": snow_incident.get("incidentNumber", ""),
+                                    "incidentStatus": snow_incident.get("incidentStatus", ""),
+                                    "assignmentGroup": snow_incident.get("assignmentGroup", ""),
+                                    "assignedTo": snow_incident.get("assignedTo", ""),
+                                    "rca": snow_incident.get("rca", ""),
+                                })
+                                
+                                # Store in local CSV storage for consistency
+                                storage = get_correlation_id_storage()
+                                storage.update_incident(
+                                    local_correlation_id,
+                                    snow_incident.get("incidentSysId", ""),
+                                    snow_incident.get("incidentNumber", ""),
+                                    snow_incident.get("incidentStatus", ""),
+                                    snow_incident.get("rca", ""),
+                                )
+                                print(f"[DEBUG] Updated local correlation ID {local_correlation_id} with incident {snow_incident.get('number', 'N/A')}")
+                        
+                        print(f"[DEBUG] Found {matches_found} matches between local and ServiceNow correlation IDs")
+                    else:
+                        print("[DEBUG] No correlation IDs found in local file to query ServiceNow")
+                except Exception as err:
+                    print(f"Error checking ServiceNow for local file correlation IDs: {err}")
+
                 source = "local_file"
             else:
                 try:
@@ -205,12 +266,8 @@ def register_servicenow_routes(app):
                         csv_storage = get_correlation_id_storage()
                         csv_map = csv_storage.get_all()
                         for item in correlation_ids:
-                            raw_cid = item.get("rawCorrelationId") or item.get(
-                                "correlationId", ""
-                            )
-                            local = csv_map.get(raw_cid) or csv_map.get(
-                                item.get("correlationId", "")
-                            )
+                            raw_cid = item.get("rawCorrelationId") or item.get("correlationId", "")
+                            local = csv_map.get(raw_cid) or csv_map.get(item.get("correlationId", ""))
                             if not local:
                                 continue
                             if local.get("rca") and not item.get("rca"):
