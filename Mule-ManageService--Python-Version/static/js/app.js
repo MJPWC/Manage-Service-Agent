@@ -1836,6 +1836,8 @@
     try {
       const ext = (file.name.split(".").pop() || "").toLowerCase();
 
+      const ctx = window.__eventDetailsContext || {};
+
       const payload = {
         content: errorText || file.content,
 
@@ -1846,6 +1848,14 @@
         reference_file_name: file.name,
 
         reference_file_extension: ext,
+
+        refined_analysis: ctx.refinedAnalysis || "",
+
+        ai_error_observations: ctx.lastSummaryObservations || "",
+
+        ai_error_rca: ctx.lastSummaryRca || "",
+
+        user_context: ctx.lastUserContext || "",
       };
 
       const result = await api(
@@ -1885,7 +1895,9 @@
             </div>`;
         }
 
-        if (result.suggested_code) {
+        // Only show editor/diff when code changes are actually required.
+        // Backend may return analysis that says "no changes required"; in that case, do not show code.
+        if (result.suggested_code && !result.no_changes_required) {
           const validationStatus = result.validation
             ? result.validation.is_valid
               ? "✅ Validated"
@@ -2144,30 +2156,35 @@
               }
             });
         } else {
-          // No code generated
+          // No code generated: keep the (already rendered) formatted analysis,
+          // and show a single generic banner (do NOT re-print the analysis again).
           const noCodeHeading = narrativeOnlyDiagnosis
             ? "Diagnostic-only analysis"
-            : "📝 Analysis complete — no code changes needed";
-          const noCodeExtra = narrativeOnlyDiagnosis
-            ? `<p style="margin:0 0 8px 0;color:var(--text-secondary);font-size:13px;">No automated code patch or GitHub PR is offered for this category of error.</p>`
-            : "";
+            : "No code changes required";
+          const noCodeBody = narrativeOnlyDiagnosis
+            ? "No automated code patch is offered for this category of error."
+            : "Based on the analysis, you don’t need to implement any code changes.";
+
           html += `
-            <div style="margin-top:16px;padding:12px;border:1px solid var(--warning-color);border-radius:8px;background:rgba(245,158,11,0.08);">
-              <h4 style="margin:0 0 8px 0;color:var(--warning-color);">${noCodeHeading}</h4>
-              ${noCodeExtra}
-              <pre style="white-space:pre-wrap;margin:0;">${escapeHtml(result.analysis || "")}</pre>
+            <div style="margin-top:16px;padding:12px;border:1px solid var(--border-color);border-radius:8px;background:rgba(148,163,184,0.08);">
+              <div style="font-weight:600;margin-bottom:4px;">${escapeHtml(noCodeHeading)}</div>
+              <div style="color:var(--text-secondary);">${escapeHtml(noCodeBody)}</div>
             </div>`;
+
           resultDiv.innerHTML = html;
-        }}
-      } catch (error) {
-        resultDiv.innerHTML = `<div class="error">Generate failed: ${error.message}</div>`;
-      } finally {
-        const regenerateBtn = resultDiv.querySelector("#btnRegenerate");
-        if (regenerateBtn) {
-          regenerateBtn.disabled = false;
         }
+      } else {
+        resultDiv.innerHTML = `<div class="error">Generate failed: ${escapeHtml(result.error || "Unknown error")}</div>`;
+      }
+    } catch (error) {
+        resultDiv.innerHTML = `<div class="error">Generate failed: ${error.message}</div>`;
+    } finally {
+      const regenerateBtn = resultDiv.querySelector("#btnRegenerate");
+      if (regenerateBtn) {
+        regenerateBtn.disabled = false;
       }
     }
+  }
 
   async function doApplyChanges(
     file,
@@ -3002,34 +3019,83 @@
       "Change Summary",
     ];
 
-    // ── Parse all **Section Name** headers and their content ───────────────
+    // ── Parse structured section headers and their content ────────────────
 
     function parseSections(src) {
       const result = {};
 
-      // Match **SectionName** at start of line (possibly with leading whitespace)
+      // Normalize section headers so small LLM variations don't break UI rendering.
+      // Examples handled:
+      // - **Summary:**  → Summary
+      // - **ROOT CAUSE** → Root Cause
+      // - ### Summary    → Summary
+      function normalizeSectionName(name) {
+        if (!name) return "";
+        let s = String(name).trim();
+        s = s.replace(/\s+/g, " ");
+        s = s.replace(/:$/, "").trim();
+        const lower = s.toLowerCase();
 
-      const headerRe = /(?:^|\n)\s*\*\*([^*\n]{2,60})\*\*/g;
+        // Canonicalize common variants / synonyms
+        if (lower === "additional info" || lower === "additional information") {
+          return "Additional Information";
+        }
+        if (lower === "summary") return "Summary";
+        if (lower === "quick fix" || lower === "quickfix") return "Quick Fix";
+        if (lower === "error type" || lower === "error category") return "Error Type";
+        if (lower === "severity") return "Severity";
+        if (lower === "root cause" || lower === "rootcause") return "Root Cause";
+        if (lower === "impact") return "Impact";
+        if (
+          lower === "immediate actions" ||
+          lower === "immediate action" ||
+          lower === "next steps" ||
+          lower === "actions"
+        ) {
+          return "Immediate Actions";
+        }
+        if (lower === "change summary" || lower === "changes summary") {
+          return "Change Summary";
+        }
+
+        // Title-case fallback (keeps unknown sections readable)
+        return s
+          .split(" ")
+          .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+          .join(" ");
+      }
+
+      // Match either bold headers (**Header**) or markdown headers (## Header / ### Header)
+      const headerRe =
+        /(?:^|\n)\s*(?:\*\*([^*\n]{2,60})\*\*|#{2,4}\s*([^\n]{2,80}))\s*(?:\n|$)/g;
 
       let match;
-
       const positions = [];
 
       while ((match = headerRe.exec(src)) !== null) {
+        const rawName = (match[1] || match[2] || "").trim();
+        const name = normalizeSectionName(rawName);
+        if (!name) continue;
+
         positions.push({
-          name: match[1].trim(),
-
+          name,
           start: match.index,
-
           headerEnd: match.index + match[0].length,
         });
       }
 
-    positions.forEach((pos, i) => {
+      positions.forEach((pos, i) => {
         const contentEnd =
           i + 1 < positions.length ? positions[i + 1].start : src.length;
+        const content = src.substring(pos.headerEnd, contentEnd).trim();
+        if (!content) return;
 
-        result[pos.name] = src.substring(pos.headerEnd, contentEnd).trim();
+        // If the same section appears more than once, append it (some models repeat headers)
+        if (result[pos.name]) {
+          result[pos.name] = (result[pos.name] + "\n\n" + content).trim();
+        } else {
+          result[pos.name] = content;
+        }
       });
 
       return result;
@@ -3085,11 +3151,19 @@
 
     // ── Main rendering logic ───────────────────────────────────────────────
 
-    // Check if the response uses the **Section** structured format
-    const hasSections =
-      /\*\*(?:Summary|Quick Fix|Root Cause|Immediate Actions|Error Type|Severity)\*\*/.test(
-        text,
+    // Check if the response looks like it contains structured sections.
+    // Be tolerant of common variations: **Summary:**, ### Summary, case differences.
+    const hasSections = (() => {
+      const t = text || "";
+      const boldLike = /\*\*\s*(summary|quick\s*fix|root\s*cause|immediate\s*actions?|error\s*type|severity|impact|additional\s*information)\s*:?\s*\*\*/i.test(
+        t,
       );
+      if (boldLike) return true;
+      const headingLike = /(?:^|\n)\s*#{2,4}\s*(summary|quick\s*fix|root\s*cause|immediate\s*actions?|error\s*type|severity|impact|additional\s*information)\b/i.test(
+        t,
+      );
+      return headingLike;
+    })();
 
     if (hasSections) {
       const parsed = parseSections(text);
@@ -4893,11 +4967,10 @@
         try {
           const payload = {
             content: fullErrorBlock,
-
             prompt:
-              "Provide a brief error summary (max 3-4 lines). Do not use separate headings or sections. Just write a clear, flowing summary based on error type, description, and message.",
-
+              "Analyze this MuleSoft error using the error-analysis ruleset. Output ALL required sections with bold section headers (e.g., **Summary**, **Quick Fix**, etc.). Do not omit any section even if values are N/A.",
             file_path: fileName,
+            ruleset: "error-analysis-rules.txt",
           };
 
           // Use the regular analyze endpoint with error-analysis-rules.txt
@@ -4955,9 +5028,8 @@
 
     const referenceFile = ctx.referenceFile;
 
-    const prompt = referenceFile
-      ? "Analyze this error and the provided source file. Use the Element field to locate the exact line(s) where the error occurs. For each location, show the current code and the exact replacement. Output in the structured format: Error Location, Fix Required (Current code / Suggested replacement), Additional Notes."
-      : "Provide a brief error summary (max 3-4 lines). Do not use separate headings or sections. Just write a clear, flowing summary based on the error type, description, and message.";
+    const prompt =
+      "Analyze this MuleSoft error using the error-analysis ruleset. Output ALL required sections with bold section headers (e.g., **Additional Information**, **Summary**, **Quick Fix**, **Error Type**, **Severity**, **Root Cause**, **Impact**, **Immediate Actions**). Do not omit any section even if values are N/A.";
 
     const payload = {
       content: fullErrorBlock,
@@ -4965,6 +5037,7 @@
       prompt: prompt,
 
       file_path: fileName,
+      ruleset: "error-analysis-rules.txt",
     };
 
     if (referenceFile) {
@@ -5000,6 +5073,11 @@
 
       if (result.success) {
         console.log("Raw analysis from LLM:", result.analysis);
+
+        // Store Step 1 output so Step 2 (generate-code-changes) can use it as primary instruction
+        if (window.__eventDetailsContext) {
+          window.__eventDetailsContext.refinedAnalysis = result.analysis;
+        }
 
         const formattedAnalysis = formatAnalysis(result.analysis);
 
@@ -6410,14 +6488,16 @@ window.analyzeErrorWithRulesetUnified = async function(logIndex = 0, fileList = 
     filePath = log.component || "unknown-file.xml";
   }
   
-  // Use same prompt for both scenarios
-  const prompt = "Provide a brief error summary (max 3-4 lines). Do not use separate headings or sections. Just write a clear, flowing summary based on error type, description, and message.";
+  // Use a ruleset-aligned prompt so the UI can render consistent sections.
+  const prompt =
+    "Analyze this MuleSoft error using the error-analysis ruleset. Output ALL required sections with bold section headers (e.g., **Summary**, **Quick Fix**, etc.). Do not omit any section even if values are N/A.";
   
   // Single API call to /api/error/analyze
   const response = await api("POST", "/api/error/analyze", {
     content: content,
     prompt: prompt,
-    file_path: filePath
+    file_path: filePath,
+    ruleset: "error-analysis-rules.txt",
   });
   
   // Use same renderAnalysisWithRefine for both
@@ -6436,7 +6516,8 @@ window.analyzeErrorWithRulesetUnified = async function(logIndex = 0, fileList = 
       const regenerateResponse = await api("POST", "/api/error/analyze", {
         content: combinedContent,
         prompt: prompt,
-        file_path: filePath
+        file_path: filePath,
+        ruleset: "error-analysis-rules.txt",
       });
       
       if (regenerateResponse.success) {

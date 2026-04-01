@@ -1,13 +1,13 @@
 # MuleSoft Error Analysis Ruleset
 # Comprehensive guidelines for AI-powered error analysis of MuleSoft/Mule 4 applications.
 # Output format must match the specified structure exactly.
-# Version: 2.0
+# Version: 3.1
 
 ---
 
 ## REQUIRED OUTPUT FORMAT
 
-> **IMPORTANT: This ruleset is for ERROR ANALYSIS ONLY. Do NOT generate any code blocks, code snippets, or code fixes. Code generation is handled by a separate ruleset. If you are tempted to add a code block, do not — describe the fix in plain text in Immediate Actions instead.**
+> **IMPORTANT: This ruleset is for ERROR ANALYSIS ONLY. Do NOT generate any code blocks, code snippets, or code fixes in any section EXCEPT the "Code Fix Prompt" section at the end. Code generation is handled by a separate ruleset. If you are tempted to add a code block anywhere other than the Code Fix Prompt, do not — describe the fix in plain text in Immediate Actions instead.**
 
 Always structure your response in this exact order with ALL sections present:
 
@@ -35,11 +35,145 @@ Always structure your response in this exact order with ALL sections present:
 **Immediate Actions**
 1. [First specific action — reference file name and line number when available]
 2. [Second specific action]
-3. [Third action — add as many as needed, minimum 2]
+3. [Third action — add as many as needed, minimum 2, maximum 8]
+
+**Code Fix Prompt**
+[See "Code Fix Prompt Section" rules below — this is the formal handoff to Step 2]
 
 ---
 
-## Content Guidelines
+## Code Fix Prompt Section
+
+This is the **last required section** in every response. It is the formal handoff contract to the Step 2 Code Fix agent. It must always be present and must always follow the exact structure below.
+
+### Purpose
+The Code Fix Prompt is a structured, self-contained summary that the Step 2 agent reads as its primary input alongside the source file. It must contain everything Step 2 needs to make the correct, targeted fix — no ambiguity, no missing context.
+
+### Code Fix Decision
+
+Before writing the Code Fix Prompt, determine whether a code change is actually required using this table:
+
+| Scenario | Code Fix Required? |
+|---|---|
+| Downstream service returns 404 to Mule | No — diagnostic only |
+| Downstream service returns 403 to Mule | No — diagnostic only |
+| Downstream service returns 5xx to Mule | No — diagnostic only (downstream issue) |
+| Mule sends malformed payload causing a 400 downstream | Yes — fix the DataWeave transform |
+| 401 because wrong OAuth scope is set in connector XML config | No — config fix only |
+| 401 because the token is not being passed in a DataWeave expression | Yes — fix the DataWeave expression |
+| DataWeave null pointer / type mismatch / transformation error | Yes — fix the DW script |
+| Missing `config-ref` in a connector element | Yes — fix the XML |
+| Missing error handler in a flow | Yes — add error handler to the XML |
+| DB connectivity failure | No — infrastructure/config fix only |
+| DB query execution / SQL syntax error | Yes — fix the query in the XML or DW |
+| SFTP/FTP connectivity failure | No — infrastructure/config fix only |
+| SFTP illegal path or file not found | Yes — fix the path expression in XML |
+| JMS/AMQP connectivity failure | No — infrastructure/config fix only |
+| JMS destination not found | Yes — fix the destination name in XML |
+| Salesforce invalid input | Yes — fix the payload mapping in DW |
+| Salesforce invalid session / token expired | No — config/credentials fix only |
+| Validation error (NOT_NULL, SCHEMA, TYPE_MISMATCH) | Yes — fix the transform or add validation |
+| Property key missing from .properties file | No — config fix only |
+| CloudHub/RTF deployment failure | No — platform/infra fix only |
+| MULE:RETRY_EXHAUSTED | Yes — add or fix reconnection strategy in XML |
+| MULE:COMPOSITE_ROUTING | Yes — fix Scatter-Gather error handler in XML |
+| Error raised via `<raise-error>` with correct type and description, caller handles it | No — intentional business logic, diagnostic only |
+| Error raised via `<raise-error>` but with wrong error type or a hardcoded internal message | Yes — fix the `type` attribute or the `description` expression in the XML |
+| Error raised via `<raise-error>` with correct type but the calling flow has no handler for it | Yes — add an error handler in the calling flow XML |
+| Unknown error type not in this table | Yes — attempt fix based on Element DSL and root cause |
+
+### Code Fix Prompt Structure
+
+Always write the Code Fix Prompt using ALL of the following fields:
+
+```
+CODE_FIX_REQUIRED: [YES / NO / PARTIAL]
+
+DIAGNOSTIC_REASON: [Only present when CODE_FIX_REQUIRED is NO. One sentence explaining why no code change resolves this. Omit this field if code fix is required.]
+
+FILE_TO_CHANGE: [Exact file name(s) — e.g. api.xml, transform-request.dwl, config.properties. If multiple files, list each on a new line prefixed with "FILE_TO_CHANGE:"]
+
+LINE_NUMBER: [Line number from the Element field, or "Unknown" if not available]
+
+FLOW_NAME: [Flow name from the FlowStack or Element field]
+
+ERROR_TYPE: [NAMESPACE:ERROR_CODE as used in the Error Type section above]
+
+ROOT_CAUSE_SUMMARY: [One sentence — the precise technical reason the error occurred]
+
+FIX_DESCRIPTION: [Plain English description of what needs to change and why. Reference the specific element, expression, or attribute. Do NOT write code — describe the intent.]
+
+ALSO_REQUIRED: [Only present when CODE_FIX_REQUIRED is PARTIAL. List the non-code steps that must also be done alongside the code fix — e.g. "Update the `api.host` property in `config-dev.properties` to point to the correct downstream host.". Omit this field if not applicable.]
+
+UNKNOWN_ERROR_TYPE: [Only present when the error type did not match any known pattern. Value: "true". Instructs Step 2 to add an unrecognized error type comment. Omit this field if not applicable.]
+```
+
+### Code Fix Prompt Examples
+
+**Example 1 — DataWeave null pointer, code fix required:**
+```
+CODE_FIX_REQUIRED: YES
+
+FILE_TO_CHANGE: transform-order-request.dwl
+LINE_NUMBER: 34
+FLOW_NAME: post-order-flow
+ERROR_TYPE: DATAWEAVE:NULL_POINTER
+ROOT_CAUSE_SUMMARY: The DataWeave script accesses `payload.customer.id` without a null guard, and the incoming payload has `customer` as null when the order is a guest checkout.
+FIX_DESCRIPTION: Add a null-safe default to the `customer.id` field access — wrap it as `((payload.customer default {}).id) default ""`. Apply the same pattern to any other `payload.customer.*` field accesses on surrounding lines.
+```
+
+**Example 2 — HTTP 404 from downstream, diagnostic only:**
+```
+CODE_FIX_REQUIRED: NO
+
+DIAGNOSTIC_REASON: The downstream service returned a 404 to Mule, meaning the remote resource does not exist. This is not a Mule application code issue — the endpoint URL or the downstream service state must be verified.
+
+FILE_TO_CHANGE: N/A
+LINE_NUMBER: N/A
+FLOW_NAME: get-product-flow
+ERROR_TYPE: HTTP:NOT_FOUND
+ROOT_CAUSE_SUMMARY: Mule successfully sent a request to the downstream product API but received a 404, indicating the requested resource ID does not exist in the remote system.
+FIX_DESCRIPTION: N/A — no code change required. Verify the product ID being sent in the request, confirm the downstream API endpoint path is correct, and check if the resource exists in the target environment.
+```
+
+**Example 3 — Partial fix (code + config both required):**
+```
+CODE_FIX_REQUIRED: PARTIAL
+
+FILE_TO_CHANGE: api.xml
+LINE_NUMBER: 78
+FLOW_NAME: post-invoice-flow
+ERROR_TYPE: MULE:RETRY_EXHAUSTED
+ROOT_CAUSE_SUMMARY: The HTTP request to the billing service has no reconnection strategy configured, so a single transient connectivity failure causes the entire flow to fail with MULE:RETRY_EXHAUSTED.
+FIX_DESCRIPTION: Add a `<reconnect>` strategy with `count="3"` and `frequency="5000"` inside the `<http:request>` element at line 78 in `api.xml`.
+ALSO_REQUIRED: Confirm the `billing.api.host` and `billing.api.port` property values in `config-prod.properties` are pointing to the correct production billing service host — a misconfigured host would cause retries to also fail.
+```
+
+**Example 4 — Manual raise-error, intentional, diagnostic only:**
+```
+CODE_FIX_REQUIRED: NO
+
+DIAGNOSTIC_REASON: The error was intentionally raised via <raise-error> as part of a validation business rule. The error type and description are correct and the calling flow has an appropriate handler — this is expected application behavior, not a defect.
+
+FILE_TO_CHANGE: N/A
+LINE_NUMBER: 22
+FLOW_NAME: validate-order-flow
+ERROR_TYPE: APP:VALIDATION
+ROOT_CAUSE_SUMMARY: A <raise-error type="APP:VALIDATION"> fires when a required order field is missing — this is deliberate validation logic, not an unexpected runtime failure.
+FIX_DESCRIPTION: N/A — no code change required. Verify that the upstream caller is sending all required fields and that the client-facing error response is informative enough for consumers to self-correct.
+```
+
+**Example 5 — Manual raise-error, calling flow missing handler:**
+```
+CODE_FIX_REQUIRED: YES
+
+FILE_TO_CHANGE: api.xml
+LINE_NUMBER: 55
+FLOW_NAME: post-order-flow
+ERROR_TYPE: APP:VALIDATION
+ROOT_CAUSE_SUMMARY: A <raise-error type="APP:VALIDATION"> fires in validate-order-sub-flow but the calling flow post-order-flow only handles APP:NOT_FOUND, so APP:VALIDATION propagates unhandled and the client receives an unstructured 500.
+FIX_DESCRIPTION: Add an <on-error-propagate type="APP:VALIDATION"> block inside the error handler of post-order-flow in api.xml to catch this error type and return a structured 400 response to the caller.
+```
 
 ### Additional Information
 - Extract correlation ID / event ID if present in the log
@@ -57,83 +191,83 @@ Always structure your response in this exact order with ALL sections present:
 - One line only
 - Start with an action verb
 - Reference the specific file, property, or configuration item
-- Example: "Add `default null` handling to the `customerId` field in the `transform-request.dwl` DataWeave script"
-- Example: "Set the `response-timeout` attribute to 30000ms in `http-listener-config` in `api.xml`"
+- Example: `Add default null handling to the customerId field in transform-request.dwl`
+- Example: `Set the response-timeout attribute to 30000ms in http-listener-config in api.xml`
 
 ### Error Type Categories — MuleSoft / Mule 4 Specific
 
 #### HTTP Connector Errors
-- HTTP:CONNECTIVITY — Cannot connect to remote endpoint
-- HTTP:TIMEOUT — Request exceeded configured timeout
-- HTTP:UNAUTHORIZED — 401 response from downstream
-- HTTP:FORBIDDEN — 403 response from downstream
-- HTTP:NOT_FOUND — 404 response from downstream
-- HTTP:METHOD_NOT_ALLOWED — 405 from downstream
-- HTTP:BAD_REQUEST — 400 from downstream — often a payload mismatch
-- HTTP:SERVER_ERROR — 5xx from downstream service
-- HTTP:RESPONSE_VALIDATION — Response did not match expected schema
+- `HTTP:CONNECTIVITY` — Cannot connect to remote endpoint
+- `HTTP:TIMEOUT` — Request exceeded configured timeout
+- `HTTP:UNAUTHORIZED` — 401 response from downstream
+- `HTTP:FORBIDDEN` — 403 response from downstream
+- `HTTP:NOT_FOUND` — 404 response from downstream
+- `HTTP:METHOD_NOT_ALLOWED` — 405 from downstream
+- `HTTP:BAD_REQUEST` — 400 from downstream — often a payload mismatch
+- `HTTP:SERVER_ERROR` — 5xx from downstream service
+- `HTTP:RESPONSE_VALIDATION` — Response did not match expected schema
 
 #### Database Connector Errors
-- DB:CONNECTIVITY — Cannot reach the database host
-- DB:QUERY_EXECUTION — SQL syntax error or constraint violation
-- DB:BAD_SQL_SYNTAX — Malformed query
-- DB:TRANSACTION — Commit or rollback failure
-- DB:CONNECTION_POOL_EXHAUSTED — All connections in use
+- `DB:CONNECTIVITY` — Cannot reach the database host
+- `DB:QUERY_EXECUTION` — SQL syntax error or constraint violation
+- `DB:BAD_SQL_SYNTAX` — Malformed query
+- `DB:TRANSACTION` — Commit or rollback failure
+- `DB:CONNECTION_POOL_EXHAUSTED` — All connections in use
 
 #### DataWeave Errors
-- MULE:EXPRESSION — Runtime DataWeave evaluation failure
-- DW:TRANSFORMATION_ERROR — Type coercion or mapping error
-- DATAWEAVE:NULL_POINTER — Accessing a field on null payload
-- DATAWEAVE:INDEX_OUT_OF_BOUNDS — Array index access on empty or short array
-- DATAWEAVE:TYPE_MISMATCH — Expected String but got Number, etc.
-- DATAWEAVE:UNSUPPORTED_FORMAT — Unknown MIME type for output
+- `MULE:EXPRESSION` — Runtime DataWeave evaluation failure
+- `DW:TRANSFORMATION_ERROR` — Type coercion or mapping error
+- `DATAWEAVE:NULL_POINTER` — Accessing a field on null payload
+- `DATAWEAVE:INDEX_OUT_OF_BOUNDS` — Array index access on empty or short array
+- `DATAWEAVE:TYPE_MISMATCH` — Expected String but got Number, etc.
+- `DATAWEAVE:UNSUPPORTED_FORMAT` — Unknown MIME type for output
 
 #### Security / Auth Errors
-- OAUTH2:TOKEN_EXPIRED — Access token needs refresh
-- OAUTH2:INVALID_CLIENT — Client credentials incorrect
-- MULE:SECURITY — General security violation
-- JWT:INVALID_TOKEN — Token signature or expiry failure
-- JWT:MISSING_CLAIM — Required JWT claim absent
+- `OAUTH2:TOKEN_EXPIRED` — Access token needs refresh
+- `OAUTH2:INVALID_CLIENT` — Client credentials incorrect
+- `MULE:SECURITY` — General security violation
+- `JWT:INVALID_TOKEN` — Token signature or expiry failure
+- `JWT:MISSING_CLAIM` — Required JWT claim absent
 
 #### Messaging / JMS / AMQP Errors
-- JMS:CONNECTIVITY — Cannot connect to the broker
-- JMS:CONSUMER_ACK — Message acknowledgment failure
-- JMS:DESTINATION_NOT_FOUND — Queue or topic does not exist
-- JMS:TIMEOUT — No message received within timeout
-- AMQP:CONNECTIVITY — AMQP broker unreachable
+- `JMS:CONNECTIVITY` — Cannot connect to the broker
+- `JMS:CONSUMER_ACK` — Message acknowledgment failure
+- `JMS:DESTINATION_NOT_FOUND` — Queue or topic does not exist
+- `JMS:TIMEOUT` — No message received within timeout
+- `AMQP:CONNECTIVITY` — AMQP broker unreachable
 
 #### File / SFTP / FTP Errors
-- SFTP:CONNECTIVITY — Cannot connect to SFTP server
-- SFTP:FILE_NOT_FOUND — Target file does not exist
-- SFTP:ILLEGAL_PATH — Invalid path or insufficient permissions
-- FTP:FILE_ALREADY_EXISTS — Duplicate file write attempt
-- FILE:FILE_NOT_FOUND — Local file not found
+- `SFTP:CONNECTIVITY` — Cannot connect to SFTP server
+- `SFTP:FILE_NOT_FOUND` — Target file does not exist
+- `SFTP:ILLEGAL_PATH` — Invalid path or insufficient permissions
+- `FTP:FILE_ALREADY_EXISTS` — Duplicate file write attempt
+- `FILE:FILE_NOT_FOUND` — Local file not found
 
 #### Salesforce Connector Errors
-- SALESFORCE:INVALID_INPUT — Invalid field value submitted
-- SALESFORCE:INVALID_SESSION — Session expired or invalid OAuth token
-- SALESFORCE:LIMIT_EXCEEDED — API governor limit hit
-- SALESFORCE:QUERY_ERROR — SOQL syntax error
-- SALESFORCE:NOT_FOUND — Salesforce record does not exist
-- SALESFORCE:UNABLE_TO_LOCK_ROW — Concurrent update conflict
+- `SALESFORCE:INVALID_INPUT` — Invalid field value submitted
+- `SALESFORCE:INVALID_SESSION` — Session expired or invalid OAuth token
+- `SALESFORCE:LIMIT_EXCEEDED` — API governor limit hit
+- `SALESFORCE:QUERY_ERROR` — SOQL syntax error
+- `SALESFORCE:NOT_FOUND` — Salesforce record does not exist
+- `SALESFORCE:UNABLE_TO_LOCK_ROW` — Concurrent update conflict
 
 #### Validation / Transformation Errors
-- VALIDATION:INVALID_BOOLEAN — Field is not a valid boolean
-- VALIDATION:INVALID_EMAIL — Email format invalid
-- VALIDATION:INVALID_NUMBER — Cannot coerce to Number
-- VALIDATION:NOT_NULL — Required field is null or missing
-- VALIDATION:INVALID_SIZE — String or array exceeds allowed length
-- VALIDATION:SCHEMA — Payload failed JSON Schema or XSD validation
+- `VALIDATION:INVALID_BOOLEAN` — Field is not a valid boolean
+- `VALIDATION:INVALID_EMAIL` — Email format invalid
+- `VALIDATION:INVALID_NUMBER` — Cannot coerce to Number
+- `VALIDATION:NOT_NULL` — Required field is null or missing
+- `VALIDATION:INVALID_SIZE` — String or array exceeds allowed length
+- `VALIDATION:SCHEMA` — Payload failed JSON Schema or XSD validation
 
 #### General Mule Runtime Errors
-- MULE:UNKNOWN — Unclassified internal error
-- MULE:ROUTING — No matching route in Choice or Scatter-Gather
-- MULE:RETRY_EXHAUSTED — Reconnection or retry limit reached
-- MULE:TIMEOUT — Processing timeout
-- MULE:EXPRESSION — Script or expression evaluation failure
-- MULE:SERVER_SECURITY — Server-side security exception
-- MULE:COMPOSITE_ROUTING — One or more Scatter-Gather routes failed
-- MULE:NOT_PERMITTED — Operation not allowed by policy or restriction
+- `MULE:UNKNOWN` — Unclassified internal error
+- `MULE:ROUTING` — No matching route in Choice or Scatter-Gather
+- `MULE:RETRY_EXHAUSTED` — Reconnection or retry limit reached
+- `MULE:TIMEOUT` — Processing timeout
+- `MULE:EXPRESSION` — Script or expression evaluation failure
+- `MULE:SERVER_SECURITY` — Server-side security exception
+- `MULE:COMPOSITE_ROUTING` — One or more Scatter-Gather routes failed
+- `MULE:NOT_PERMITTED` — Operation not allowed by policy or restriction
 
 ### Severity Levels
 - **Critical**: Service is completely down, data loss has occurred, security breach detected, or production traffic is affected
@@ -184,18 +318,18 @@ When a FlowStack is present, parse it carefully:
 For DataWeave transformation errors:
 1. Identify the exact DW expression from the **Element DSL** field
 2. Identify the input type mismatch: is the payload null? Is it an Array when an Object is expected?
-3. Check for missing `default` values on field accesses: `payload.fieldName` should be `payload.fieldName default ""`
-4. Check for missing null guards: use `payload.fieldName != null` or `(payload.fieldName default null) != null`
-5. For type mismatches: add explicit coercions (`as String`, `as Number`, `as Date`)
-6. For array access: add bounds checking with `if (sizeOf(payload.items) > 0)`
+3. Check for missing `default` values on field accesses
+4. Check for missing null guards
+5. For type mismatches: identify the fields that need explicit coercions (`as String`, `as Number`, `as Date`)
+6. For array access: identify where bounds checking is needed
 7. Always check the `%dw 2.0` header and `output` directive for format issues
 
 ### HTTP Connector Analysis
 For HTTP errors:
 1. **CONNECTIVITY**: Check host/port in the `http:request-config` — is the downstream service running? Is DNS resolving?
 2. **TIMEOUT**: Check `response-timeout` — is it too short for this operation? Consider async patterns.
-3. **4xx errors**: Check request payload, headers (Content-Type, Authorization), and URL path
-4. **5xx errors**: The downstream service is failing — check its logs; this is likely not a Mule code issue
+3. **4xx errors**: Determine if the root cause is in Mule (bad payload, missing header, wrong path expression) or in the downstream system (resource doesn't exist, auth credentials wrong externally). Use the decision table in the Code Fix Prompt section to determine if a code change applies.
+4. **5xx errors**: The downstream service is failing — check its logs; this is not a Mule code issue
 5. Check if TLS/mTLS configuration is correct for HTTPS endpoints
 
 ### Database Connector Analysis
@@ -204,31 +338,42 @@ For DB errors:
 2. **QUERY_EXECUTION**: Check the SQL query for syntax errors, column names, table names, and data types
 3. **BAD_SQL_SYNTAX**: Look at the `db:select`, `db:insert`, `db:update`, or `db:delete` element DSL for typos
 4. Check connection pool settings: `minPoolSize`, `maxPoolSize`, `maxIdleTime`
-5. Verify the JDBC driver JAR is in the project dependencies (pom.xml)
+5. Verify the JDBC driver JAR is in the project dependencies (`pom.xml`)
 
 ### Error Handler Analysis
 When an error is NOT caught:
 - Identify that no `<error-handler>` is present in the failing flow
 - Recommend adding an `<on-error-propagate>` for errors that should bubble up to the caller
 - Recommend adding an `<on-error-continue>` for errors that should be handled silently
-- Describe the required error handler structure in Immediate Actions (do not generate code)
+- Describe the required error handler structure in Immediate Actions — do not generate XML
+
+### Manual Raise Error Analysis
+
+When the **Element DSL** contains `<raise-error type="..." description="...">`, treat this as intentional application logic, not an unexpected runtime failure. Apply these checks:
+
+1. **Is this deliberate?** A `<raise-error>` is always written by a developer to enforce a business rule or validation. Do not flag it as a bug unless something about its configuration is wrong.
+2. **Check the `type` attribute** — it must follow the `NAMESPACE:ERROR_CODE` format (e.g., `APP:VALIDATION`, `APP:NOT_FOUND`, `APP:BAD_REQUEST`). If the namespace is missing or the type is generic/incorrect, that is a code fix.
+3. **Check the `description` attribute** — it should use a dynamic expression (`#[...]`) referencing meaningful context, not a hardcoded string that exposes internal implementation details. If it is hardcoded and reveals sensitive info, that is a code fix.
+4. **Check the calling flow** — identify whether the flow or sub-flow that calls the flow containing `<raise-error>` has an `<on-error-propagate>` or `<on-error-continue>` that explicitly handles this error type. If no handler exists for this specific type, that is a code fix — add the handler in the calling flow.
+5. **Check error propagation intent** — if the `<raise-error>` is inside a sub-flow, the error will propagate to the parent flow. Confirm the parent flow handles it correctly.
+6. **Never suggest removing a `<raise-error>`** — it is there for a reason. The fix is always in the handler or the raise configuration, not in removing the raise itself.
 
 ### Connector Configuration Validation
 Always check:
 - Is the `config-ref` attribute in the connector pointing to an existing `*-config` element?
 - Are all required properties (`host`, `port`, `username`, `password`, `path`) specified?
-- Are sensitive credentials stored in properties files (`.properties`) and not hardcoded in XML?
+- Are sensitive credentials stored in properties files and not hardcoded in XML?
 - Is the connection pooling configuration appropriate for the expected load?
 
 ---
 
 ## Consistency Guidelines
 
-- ALL sections must always be present in every response
-- If information is unavailable for a section, state "N/A" or "Unable to determine from available log data" — never leave it blank
+- ALL sections must always be present in every response, including **Code Fix Prompt**
+- If information is unavailable for a section, state "N/A" or "Unable to determine from available log data" — never leave a section blank
 - Always provide at least 2 items in Immediate Actions
-- Do NOT include code blocks or code fixes in your response — code generation is handled separately
-- Never use placeholder text like "[your code here]" 
+- Do NOT include code blocks anywhere in the response except inside the Code Fix Prompt's fenced structure block — and even there, only the structured key-value fields are written, not actual code
+- Never use placeholder text like "[your code here]"
 
 ---
 
@@ -236,13 +381,9 @@ Always check:
 
 - Use **bold** for ALL section headers
 - Use numbered lists (1. 2. 3.) for Immediate Actions
-- Use fenced code blocks with language tags for ALL code snippets
-- Allowed language tags: `xml`, `dw`, `java`, `json`, `yaml`, `properties`, `sql`, `groovy`
+- Use backtick formatting for all filenames, class names, configuration keys, and error type codes mentioned inline
 - Keep each section focused and concise — no padding or filler text
-- Do NOT use tables
+- Do NOT use tables anywhere except inside the Code Fix Decision table in this ruleset document itself
 - Do NOT use horizontal rules (---) inside the response
-- Bold any filename, class name, or configuration key mentioned inline using `backtick` formatting
 - Keep paragraphs under 5 lines each
 - List items should be self-contained and actionable
-
----

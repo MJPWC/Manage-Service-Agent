@@ -879,6 +879,10 @@ def generate_code_changes():
             reference_file_name=reference_file_name,
             reference_file_extension=file_type,
             expected_file_from_error=expected_file_from_error,
+            refined_analysis=refined_analysis,
+            user_context=user_context,
+            ai_error_observations=data.get("ai_error_observations", ""),
+            ai_error_rca=data.get("ai_error_rca", ""),
         )
 
         if not analysis:
@@ -897,12 +901,16 @@ def generate_code_changes():
             "no changes are required",
             "no code changes needed",
             "no modifications required",
+            "no change required",
+            "no changes needed",
         )
         analysis_lower = analysis.lower()
         explicitly_no_changes = any(
             phrase in analysis_lower for phrase in no_change_phrases
         )
-        if explicitly_no_changes and not suggested_code:
+        # IMPORTANT: some models contradict themselves by returning code even after stating
+        # "no changes required". Treat this as authoritative and never return code to the UI.
+        if explicitly_no_changes:
             suggested_code = None
 
         if narrative_only:
