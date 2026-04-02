@@ -311,12 +311,17 @@ def analyze_error():
 
 @app.route("/api/error/custom-prompt", methods=["POST"])
 def custom_prompt_analyze():
-    """Analyze error message using AI with custom user prompt (no ruleset)"""
+    """Analyze error message using AI with custom user prompt (ruleset-based).
+
+    This endpoint exists for UX ("custom prompt") but should still enforce the
+    same structured Step-1 output as /api/error/analyze by applying a ruleset.
+    """
     try:
         data = request.get_json()
         error_message = data.get("content")
         user_prompt = data.get("prompt", "Analyze this error")
         file_path = data.get("file_path", "")
+        ruleset_name = data.get("ruleset", "error-analysis-rules.txt")
         reference_file_content = data.get("reference_file_content", "")
         reference_file_name = data.get("reference_file_name", "")
         reference_file_extension = data.get("reference_file_extension", "")
@@ -333,18 +338,30 @@ def custom_prompt_analyze():
         # Initialize LLM manager
         llm_manager = get_llm_manager()
 
-        # Use analyze_file_content for custom prompts (no ruleset)
-        analysis = llm_manager.analyze_file_content(
+        # Use ruleset-based analysis even for custom prompts
+        analysis = llm_manager.analyze_error(
             error_message,
             user_prompt,
             file_path,
+            ruleset_name,
             reference_file_content=reference_file_content,
             reference_file_name=reference_file_name,
             reference_file_extension=reference_file_extension,
             expected_file_from_error=expected_file_from_error,
         )
 
-        return jsonify({"success": True, "analysis": analysis, "prompt": user_prompt})
+        # Keep parity with /api/error/analyze: strip any code blocks for error-analysis ruleset
+        if ruleset_name == "error-analysis-rules.txt":
+            analysis = _strip_code_blocks_from_analysis(analysis)
+
+        return jsonify(
+            {
+                "success": True,
+                "analysis": analysis,
+                "prompt": user_prompt,
+                "ruleset": ruleset_name,
+            }
+        )
 
     except Exception as err:
         return jsonify({"success": False, "error": str(err)}), 500
@@ -523,6 +540,7 @@ def _build_mulesoft_code_gen_prompt(
     user_context: str = "",
     immediate_actions: str = "",
     change_summary: str = "",
+    all_reference_files: list = None,
 ) -> str:
     """
     Build a rich, MuleSoft-specific code generation prompt.
@@ -625,6 +643,17 @@ def _build_mulesoft_code_gen_prompt(
         prompt_parts = [
             "Generate a production-ready code fix for the following MuleSoft error.",
             "",
+        ]
+        # Anchor LLM to the file the user opened — not where the error Element points
+        if reference_file_name:
+            prompt_parts += [
+                f"⚠️  PRIMARY TARGET FILE: `{reference_file_name}`",
+                f"You MUST generate the code fix for `{reference_file_name}` ONLY.",
+                "Even if the error Element field references a different file, your code output",
+                f"must be for `{reference_file_name}`. Do NOT output code for any other file.",
+                "",
+            ]
+        prompt_parts += [
             "═══ ERROR DETAILS ═══",
         ]
 
@@ -706,6 +735,28 @@ def _build_mulesoft_code_gen_prompt(
                 f"Target fix:     Apply fix at line {line_from_error} in {file_from_error}"
             )
 
+    # Include additional reference files as context (read-only — do not fix these)
+    if all_reference_files and len(all_reference_files) > 1:
+        other_files = [f for f in all_reference_files if f.get("name") != reference_file_name]
+        if other_files:
+            prompt_parts += [
+                "",
+                "═══ ADDITIONAL FILES (FOR CONTEXT ONLY — DO NOT MODIFY) ═══",
+                f"The following {len(other_files)} file(s) are provided as read-only context.",
+                f"They help you understand the full integration. Only fix `{reference_file_name}`.",
+            ]
+            for f in other_files[:3]:  # Cap at 3 additional files to avoid token overflow
+                fname = f.get("name", "unknown")
+                fcontent = f.get("content", "")
+                fext = f.get("extension", "text").lower().lstrip(".")
+                prompt_parts += [
+                    "",
+                    f"--- Context file: `{fname}` (DO NOT MODIFY) ---",
+                    f"```{fext}",
+                    fcontent[:8000],  # Cap each file at 8000 chars
+                    "```",
+                ]
+
     if narrative_only:
         prompt_parts += [
             "",
@@ -737,6 +788,41 @@ def _build_mulesoft_code_gen_prompt(
     return "\n".join(prompt_parts)
 
 
+def _parse_files_to_change_from_step1(refined_analysis: str) -> list:
+    """
+    Extract FILE_TO_CHANGE entries from Step-1 analysis (error-analysis ruleset).
+
+    Step-1's Code Fix Prompt supports multiple lines prefixed with FILE_TO_CHANGE:.
+    We use this list to decide which uploaded files Step-2 should modify.
+    """
+    if not refined_analysis or not refined_analysis.strip():
+        return []
+
+    files = []
+    for m in re.finditer(
+        r"(?im)^[ \t]*FILE_TO_CHANGE:[ \t]*(?P<name>.+?)\s*$", refined_analysis
+    ):
+        name = (m.group("name") or "").strip()
+        if not name:
+            continue
+        # Common "no file" markers in the ruleset examples
+        if name.upper() in ("N/A", "NA", "NONE"):
+            continue
+        # If user listed multiple filenames on one line separated by commas, split them
+        parts = [p.strip() for p in re.split(r"\s*,\s*", name) if p.strip()]
+        files.extend(parts if parts else [name])
+
+    # De-dupe while preserving order
+    deduped = []
+    seen = set()
+    for f in files:
+        key = f.lower()
+        if key not in seen:
+            seen.add(key)
+            deduped.append(f)
+    return deduped
+
+
 @app.route("/api/error/generate-code-changes", methods=["POST"])
 def generate_code_changes():
     """
@@ -759,9 +845,31 @@ def generate_code_changes():
         file_path = data.get("file_path", "")
         
         # Support both single file and multiple files
-        reference_files = data.get("reference_files", [])
-        if reference_files and len(reference_files) > 0:
-            # Multi-file mode
+        reference_files = data.get("reference_files", []) or []
+        if reference_files and isinstance(reference_files, list):
+            # Normalise: ensure each entry has (name, content, extension, path)
+            normalised = []
+            for f in reference_files:
+                if not isinstance(f, dict):
+                    continue
+                name = f.get("name") or ""
+                content_f = f.get("content") or ""
+                path_f = f.get("path") or f.get("file_path") or name
+                ext_f = f.get("extension") or ""
+                if not ext_f and isinstance(name, str) and "." in name:
+                    ext_f = name.rsplit(".", 1)[-1]
+                normalised.append(
+                    {
+                        "name": name,
+                        "content": content_f,
+                        "path": path_f,
+                        "extension": (ext_f or "").lower().lstrip("."),
+                    }
+                )
+            reference_files = normalised
+
+        if reference_files:
+            # Multi-file mode: keep backward-compatible "primary file" fields
             reference_file_content = reference_files[0].get("content", "")
             reference_file_name = reference_files[0].get("name", "")
             reference_file_extension = reference_files[0].get("extension", "")
@@ -782,14 +890,31 @@ def generate_code_changes():
                 }
             ), 400
 
-        # Derive file type from extension or file name
-        file_type = ""
-        if reference_file_extension:
-            file_type = reference_file_extension.lower().lstrip(".")
-        elif reference_file_name:
-            ext_match = re.search(r"\.([a-zA-Z0-9]+)$", reference_file_name)
-            if ext_match:
-                file_type = ext_match.group(1).lower()
+        # Determine which files Step-2 should change (based on Step-1 Code Fix Prompt)
+        step1_files_to_change = _parse_files_to_change_from_step1(refined_analysis)
+        if reference_files and step1_files_to_change:
+            # Only target files that are actually uploaded/available
+            available_by_lower = {f.get("name", "").lower(): f for f in reference_files}
+            targeted = []
+            for name in step1_files_to_change:
+                fobj = available_by_lower.get(name.lower())
+                if fobj:
+                    targeted.append(fobj)
+            # If Step-1 referenced files we don't have, fall back to first uploaded file
+            target_reference_files = targeted if targeted else [reference_files[0]]
+        else:
+            # Single-file or Step-1 didn't specify: default to primary file
+            target_reference_files = [reference_files[0]] if reference_files else []
+
+        def _derive_file_type(name: str, ext_hint: str) -> str:
+            if ext_hint:
+                return (ext_hint or "").lower().lstrip(".")
+            if name and "." in name:
+                return name.rsplit(".", 1)[-1].lower()
+            return ""
+
+        # Primary file type (used for top-level response fields)
+        file_type = _derive_file_type(reference_file_name, reference_file_extension)
 
         narrative_only = _should_use_narrative_only_diagnosis(
             content, reference_file_name, reference_file_extension
@@ -843,24 +968,13 @@ def generate_code_changes():
                 )
                 context_info = {}
 
-        # ── Step 3: Build enriched MuleSoft code-gen prompt ──────────────────
-        enhanced_prompt = _build_mulesoft_code_gen_prompt(
-            content=content,
-            file_path=file_path,
-            file_type=file_type,
-            reference_file_content=reference_file_content,
-            reference_file_name=reference_file_name,
-            quick_fixes=quick_fixes,
-            context_info=context_info,
-            static_issues_count=len(static_issues),
-            narrative_only=narrative_only,
-            refined_analysis=refined_analysis,
-            user_context=user_context,
-            immediate_actions=data.get("immediate_actions", ""),
-            change_summary=data.get("change_summary", ""),
-        )
+        # ── Step 3+: Multi-file code generation loop ─────────────────────────
+        # If multiple files are uploaded AND Step-1 requested changes in multiple files,
+        # generate a suggested full-file output for each targeted file.
+        suggested_changes = {}
+        per_file_primary = None
 
-        # Extract expected file:line from the error for LLM context
+        # Extract expected file:line from the error for LLM context (shared)
         expected_file_from_error = ""
         element_match = re.search(
             r"Element\s*:\s*(.+?)(?:\n|$)", content, re.IGNORECASE
@@ -883,8 +997,164 @@ def generate_code_changes():
                         )
                         break
 
-        # ── Step 4: LLM analysis ──────────────────────────────────────────────
         llm_manager = get_llm_manager()
+
+        # If we don't have reference files, fall back to original single-file logic below
+        if target_reference_files:
+            for idx, fobj in enumerate(target_reference_files):
+                ref_name = fobj.get("name", "") or ""
+                ref_content = fobj.get("content", "") or ""
+                ref_path = fobj.get("path", "") or file_path
+                ref_ext = _derive_file_type(ref_name, fobj.get("extension", ""))
+
+                per_file_type = ref_ext
+                if per_file_type in ("dwl", "dw"):
+                    per_file_type = "dw"
+
+                # Per-file quick fixes (best-effort)
+                per_quick_fixes = []
+                per_static_issues = []
+                if not narrative_only and ref_content and per_file_type:
+                    try:
+                        if per_file_type == "xml":
+                            per_static_issues = static_analyzer.analyze_xml_file(
+                                ref_content, ref_path
+                            )
+                            per_quick_fixes = static_analyzer.suggest_quick_fixes(
+                                content, ref_content, "xml"
+                            )
+                        elif per_file_type == "dw":
+                            per_static_issues = static_analyzer.analyze_dataweave_file(
+                                ref_content, ref_path
+                            )
+                            per_quick_fixes = static_analyzer.suggest_quick_fixes(
+                                content, ref_content, "dwl"
+                            )
+                        else:
+                            per_quick_fixes = static_analyzer.suggest_quick_fixes(
+                                content, ref_content, per_file_type
+                            )
+                    except Exception as e:
+                        print(
+                            f"[generate_code_changes] Per-file static analysis failed (non-fatal) for {ref_name}: {e}"
+                        )
+                        per_quick_fixes = []
+                        per_static_issues = []
+
+                enhanced_prompt = _build_mulesoft_code_gen_prompt(
+                    content=content,
+                    file_path=ref_path,
+                    file_type=per_file_type,
+                    reference_file_content=ref_content,
+                    reference_file_name=ref_name,
+                    quick_fixes=per_quick_fixes,
+                    context_info=context_info,
+                    static_issues_count=len(per_static_issues),
+                    narrative_only=narrative_only,
+                    refined_analysis=refined_analysis,
+                    user_context=user_context,
+                    immediate_actions=data.get("immediate_actions", ""),
+                    change_summary=data.get("change_summary", ""),
+                    all_reference_files=reference_files if reference_files else None,
+                )
+
+                print(
+                    f"[generate_code_changes] Calling LLM (multi-file) | target={ref_name} | file_type={per_file_type}"
+                )
+                analysis = llm_manager.analyze_error(
+                    content,
+                    enhanced_prompt,
+                    ref_path,
+                    ruleset_name,
+                    reference_file_content=ref_content,
+                    reference_file_name=ref_name,
+                    reference_file_extension=per_file_type,
+                    expected_file_from_error=expected_file_from_error,
+                    refined_analysis=refined_analysis,
+                    user_context=user_context,
+                    ai_error_observations=data.get("ai_error_observations", ""),
+                    ai_error_rca=data.get("ai_error_rca", ""),
+                )
+
+                suggested_code = _extract_code_block_from_analysis(analysis)
+
+                # "no changes" guard
+                analysis_lower = (analysis or "").lower()
+                no_change_phrases = (
+                    "no code changes required",
+                    "no code change required",
+                    "no changes required",
+                    "no changes are required",
+                    "no code changes needed",
+                    "no modifications required",
+                    "no change required",
+                    "no changes needed",
+                )
+                explicitly_no_changes = any(
+                    phrase in analysis_lower for phrase in no_change_phrases
+                )
+                if explicitly_no_changes:
+                    suggested_code = None
+
+                # Validate per-file
+                validation_result = None
+                if suggested_code and ref_content:
+                    try:
+                        is_valid, validation_errors = validator.validate_generated_code(
+                            ref_content, suggested_code, per_file_type
+                        )
+                        validation_result = {
+                            "is_valid": is_valid,
+                            "errors": validation_errors,
+                        }
+                    except Exception as e:
+                        print(
+                            f"[generate_code_changes] Validation failed (non-fatal) for {ref_name}: {e}"
+                        )
+                        validation_result = {"is_valid": True, "errors": []}
+
+                suggested_changes[ref_name or f"file_{idx+1}"] = {
+                    "analysis": analysis,
+                    "suggested_code": suggested_code,
+                    "quick_fixes": per_quick_fixes,
+                    "validation": validation_result,
+                    "file_type": per_file_type,
+                    "no_changes_required": explicitly_no_changes and not suggested_code,
+                }
+
+                # Preserve original single-file response fields for the first target
+                if per_file_primary is None:
+                    per_file_primary = suggested_changes[ref_name or f"file_{idx+1}"]
+
+            # Build a minimal top-level response compatible with existing UI
+            primary_analysis = per_file_primary.get("analysis") if per_file_primary else ""
+            primary_code = per_file_primary.get("suggested_code") if per_file_primary else None
+            primary_qf = per_file_primary.get("quick_fixes") if per_file_primary else []
+            primary_val = per_file_primary.get("validation") if per_file_primary else None
+            primary_ft = per_file_primary.get("file_type") if per_file_primary else file_type
+            primary_no_changes = (
+                per_file_primary.get("no_changes_required") if per_file_primary else True
+            )
+
+            return jsonify(
+                {
+                    "success": True,
+                    "analysis": primary_analysis,
+                    "suggested_code": primary_code,
+                    "quick_fixes": primary_qf,
+                    "validation": primary_val,
+                    "context": context_info,
+                    "enhanced_analysis": True,
+                    "file_type": primary_ft,
+                    "reference_files": reference_files if reference_files else None,
+                    "no_changes_required": primary_no_changes,
+                    "narrative_only_diagnosis": narrative_only,
+                    "suggested_changes": suggested_changes,
+                    "step1_files_to_change": step1_files_to_change,
+                }
+            )
+
+        # ── Fallback: original single-file behavior (no reference_files) ─────
 
         print(
             f"[generate_code_changes] Calling LLM | file_type={file_type} | "
@@ -894,7 +1164,22 @@ def generate_code_changes():
 
         analysis = llm_manager.analyze_error(
             content,
-            enhanced_prompt,
+            _build_mulesoft_code_gen_prompt(
+                content=content,
+                file_path=file_path,
+                file_type=file_type,
+                reference_file_content=reference_file_content,
+                reference_file_name=reference_file_name,
+                quick_fixes=quick_fixes,
+                context_info=context_info,
+                static_issues_count=len(static_issues),
+                narrative_only=narrative_only,
+                refined_analysis=refined_analysis,
+                user_context=user_context,
+                immediate_actions=data.get("immediate_actions", ""),
+                change_summary=data.get("change_summary", ""),
+                all_reference_files=reference_files if reference_files else None,
+            ),
             file_path,
             ruleset_name,
             reference_file_content=reference_file_content,

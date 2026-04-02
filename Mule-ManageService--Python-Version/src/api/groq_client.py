@@ -367,18 +367,28 @@ Your analysis should:
                 else MULESOFT_EXPERT_SYSTEM_PROMPT
             )
 
+            step1_handoff = ""
+            if ruleset_name == "error-analysis-rules.txt":
+                step1_handoff = """
+STEP 1 HANDOFF (error-analysis ruleset — mandatory):
+- End your response with the **Code Fix Prompt** section (it must be the LAST section).
+- Inside **Code Fix Prompt**, output the fenced block with ALL required fields from the ruleset: CODE_FIX_REQUIRED, FILE_TO_CHANGE, LINE_NUMBER, FLOW_NAME, ERROR_TYPE, ROOT_CAUSE_SUMMARY, FIX_DESCRIPTION (and ALSO_REQUIRED when CODE_FIX_REQUIRED is PARTIAL).
+- Do NOT omit this block. Step 2 parses FILE_TO_CHANGE from it.
+- If multiple Mule XML/DWL files require edits (e.g. System API + Process API), list one FILE_TO_CHANGE: line per file with exact basenames.
+"""
+
             system_content = f"""{base_system}
 
 {ruleset if ruleset else "Analyze the error and provide structured insights on root cause, impact, and recommended fixes."}
-
+{step1_handoff}
 **Context for this analysis:**
 - File path: {file_path if file_path else "Not specified"}
 - Error log size: {len(error_message)} characters
 
 CRITICAL OUTPUT REQUIREMENTS:
 - You MUST include ALL sections defined in the ruleset
-- The **Code Fix** section is MANDATORY — never omit it
-- If no code change is needed, write: "No code change required — [reason]" and provide manual steps
+- The **Code Fix Prompt** section (with its fenced CODE_FIX_REQUIRED / FILE_TO_CHANGE block) is MANDATORY — never omit it
+- If no code change is needed, set CODE_FIX_REQUIRED: NO in the Code Fix Prompt block and explain in DIAGNOSTIC_REASON
 - Always provide at least 2 numbered Immediate Actions
 - Reference specific file names and line numbers extracted from the error when available
 - Use the FlowStack to trace the exact error propagation path"""
@@ -442,8 +452,19 @@ CRITICAL OUTPUT REQUIREMENTS:
                     "4. Follow the Change Summary format after the code block",
                 ]
             else:
+                multi_hint = ""
+                if ruleset_name == "error-analysis-rules.txt" and (
+                    error_message.count("=== File:") > 1
+                    or "=== Multi-File Context ===" in error_message
+                ):
+                    multi_hint = (
+                        "\n**Multi-file context:** The error payload includes multiple source files. "
+                        "If more than one file needs code changes, the **Code Fix Prompt** must list "
+                        "a separate FILE_TO_CHANGE: line for each file Step 2 must edit.\n"
+                    )
                 user_content_parts.append(
-                    "\nPlease analyze this error following all ruleset guidelines and provide a complete structured response."
+                    multi_hint
+                    + "\nPlease analyze this error following all ruleset guidelines and provide a complete structured response."
                 )
 
             messages = [

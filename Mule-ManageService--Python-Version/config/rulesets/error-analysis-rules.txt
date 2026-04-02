@@ -1,7 +1,7 @@
 # MuleSoft Error Analysis Ruleset
 # Comprehensive guidelines for AI-powered error analysis of MuleSoft/Mule 4 applications.
 # Output format must match the specified structure exactly.
-# Version: 3.1
+# Version: 3.2
 
 ---
 
@@ -48,6 +48,14 @@ This is the **last required section** in every response. It is the formal handof
 
 ### Purpose
 The Code Fix Prompt is a structured, self-contained summary that the Step 2 agent reads as its primary input alongside the source file. It must contain everything Step 2 needs to make the correct, targeted fix — no ambiguity, no missing context.
+
+### Multi-API / multi-file chains (mandatory)
+- **Never omit** the **Code Fix Prompt** section or its fenced field block — Step 2 automation parses `FILE_TO_CHANGE:` from this section.
+- If the error log or uploaded context references **more than one** Mule application or **more than one** XML/DWL file (for example Process API calling System API; error propagates across `sf-process-api.xml` and `sf-system-sapi.xml`):
+  - Set `CODE_FIX_REQUIRED` to **YES** if only one file needs edits, **PARTIAL** if both caller and callee (or multiple files) need coordinated code changes, or **NO** if the fix is purely diagnostic or configuration outside Mule XML.
+  - List **one `FILE_TO_CHANGE:` line per file** that Step 2 must modify (exact basename, e.g. `FILE_TO_CHANGE: sf-system-sapi.xml` then `FILE_TO_CHANGE: sf-process-api.xml` on the next line).
+  - In `FIX_DESCRIPTION`, state what each listed file must change. Do not rely on prose in Immediate Actions alone — the handoff fields must be complete.
+- If only the System API file must change but the Process API only needs verification or logging, use **PARTIAL**, include the System API in `FILE_TO_CHANGE`, and put verification steps in `ALSO_REQUIRED`.
 
 ### Code Fix Decision
 

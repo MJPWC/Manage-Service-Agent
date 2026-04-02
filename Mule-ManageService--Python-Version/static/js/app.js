@@ -1841,15 +1841,22 @@
       // Extract specific sections from the analysis
       const analysisSections = extractAnalysisSections(ctx.refinedAnalysis || '');
       
-      // Check if we have multi-file context from GitHub analysis
-      const hasMultiFileContext = ctx.githubSourceFileContentByBasename && 
+      // Check if we have multi-file context from GitHub OR local multi-file upload
+      const githubMulti =
+        ctx.githubSourceFileContentByBasename &&
         Object.keys(ctx.githubSourceFileContentByBasename).length > 1;
+      const localMulti =
+        ctx.localSourceFileContentByBasename &&
+        Object.keys(ctx.localSourceFileContentByBasename).length > 1;
+      const hasMultiFileContext = githubMulti || localMulti;
       
       // Prepare payload based on single vs multi-file context
       let payload;
       if (hasMultiFileContext) {
         // Multi-file context: pass all available files
-        const allFileContents = ctx.githubSourceFileContentByBasename;
+        const allFileContents = githubMulti
+          ? ctx.githubSourceFileContentByBasename
+          : ctx.localSourceFileContentByBasename;
         const allFileNames = Object.keys(allFileContents);
         
         payload = {
@@ -1860,7 +1867,9 @@
           reference_files: allFileNames.map(fileName => ({
             name: fileName,
             content: allFileContents[fileName],
-            path: ctx.githubRepoPathByBasename?.[fileName] || fileName
+            path: (githubMulti
+              ? ctx.githubRepoPathByBasename?.[fileName]
+              : ctx.localRepoPathByBasename?.[fileName]) || fileName
           })),
           
           // Backward compatibility - primary file
@@ -1911,6 +1920,55 @@
         const narrativeOnlyDiagnosis = !!result.narrative_only_diagnosis;
 
         let html = `<div class="analysis-text">${formatAnalysis(result.analysis)}</div>`;
+
+        // Multi-file code changes support: backend may return suggested_changes keyed by filename.
+        // When present, render each generated full file output (and keep backward-compatible
+        // single-file rendering below for result.suggested_code).
+        if (result.suggested_changes && typeof result.suggested_changes === "object") {
+          const files = Object.keys(result.suggested_changes);
+          if (files.length > 0) {
+            html += `
+              <div class="multi-file-changes" style="margin-top:16px;padding:12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);">
+                <h4 style="margin:0 0 10px 0;color:var(--text-primary);">Generated changes (${files.length} file${files.length === 1 ? "" : "s"})</h4>
+                ${files
+                  .map((fname) => {
+                    const entry = result.suggested_changes[fname] || {};
+                    const code = entry.suggested_code || "";
+                    const hasCode = !!code && !entry.no_changes_required;
+                    const v = entry.validation || null;
+                    const vLabel = v
+                      ? v.is_valid
+                        ? "✅ Validated"
+                        : "⚠️ Has validation issues"
+                      : "";
+                    return `
+                      <details style="margin:8px 0;padding:10px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-primary);">
+                        <summary style="cursor:pointer;font-weight:600;color:var(--text-primary);">
+                          ${escapeHtml(fname)} ${vLabel ? `<span style="font-weight:500;color:var(--text-secondary);margin-left:8px;">${vLabel}</span>` : ""}
+                        </summary>
+                        <div style="margin-top:10px;">
+                          ${
+                            hasCode
+                              ? `<pre style="white-space:pre;overflow:auto;padding:10px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-tertiary);max-height:420px;">${escapeHtml(code)}</pre>`
+                              : `<div style="color:var(--text-secondary);">No code changes returned for this file.</div>`
+                          }
+                          ${
+                            v && !v.is_valid && Array.isArray(v.errors) && v.errors.length
+                              ? `<div style="margin-top:10px;padding:10px;border:1px solid var(--error-color);border-radius:6px;background:rgba(239,68,68,0.08);">
+                                   <div style="font-weight:600;color:var(--error-color);margin-bottom:6px;">Validation issues</div>
+                                   ${v.errors.map((e) => `<div style="margin:3px 0;color:var(--error-color);">• ${escapeHtml(e)}</div>`).join("")}
+                                 </div>`
+                              : ``
+                          }
+                        </div>
+                      </details>
+                    `;
+                  })
+                  .join("")}
+              </div>
+            `;
+          }
+        }
 
         if (result.quick_fixes && result.quick_fixes.length > 0) {
           html += `
@@ -5363,6 +5421,7 @@
           prompt: prompt,
 
           file_path: fileName,
+          ruleset: "error-analysis-rules.txt",
         };
 
         if (referenceFile) {
@@ -6590,6 +6649,16 @@ window.analyzeErrorWithRulesetUnified = async function(logIndex = 0, fileList = 
     const allFileContents = Object.entries(fileContents).map(([name, content]) => 
       `=== File: ${name} ===\n${content}`
     ).join('\n\n');
+
+    // Persist local multi-file contents for Step 2 (Generate code changes).
+    // GitHub flow uses ctx.githubSourceFileContentByBasename; local uploads should store similarly.
+    if (ctx) {
+      ctx.localSourceFileContentByBasename = fileContents;
+      if (!ctx.localRepoPathByBasename) ctx.localRepoPathByBasename = {};
+      Object.keys(fileContents).forEach((name) => {
+        ctx.localRepoPathByBasename[name] = name;
+      });
+    }
     
     // Check if this is from multi-file upload (ctx.errorDescription) or event details (ctx.logs)
     let errorContent;
