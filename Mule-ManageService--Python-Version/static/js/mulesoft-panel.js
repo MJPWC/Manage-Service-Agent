@@ -148,11 +148,13 @@
   }
 
   function extractApiAndFileFromFlowStack(eventId) {
+    
     if (typeof global.extractApiAndFileFromFlowStack === "function") {
       return global.extractApiAndFileFromFlowStack(eventId);
     }
 
     const state = getState();
+    
     const analysis = state.logAnalysis;
 
     if (!analysis || !analysis.error_location) {
@@ -198,18 +200,27 @@
       return "Unknown API";
     }
 
+    // 1. existing regex — for paths with /src/main/
     const slashMatch = elementStr.match(/\/([A-Za-z0-9_.-]+)\/src\/main\//i);
     if (slashMatch && slashMatch[1]) {
       return slashMatch[1];
     }
 
+    // 2. NEW — extract word after "@" and before ":"
+    // matches: "@ sf-system-api:sf-system-sapi.xml" → "sf-system-api"
+    const atMatch = elementStr.match(/@\s*([A-Za-z0-9_.-]+):/i);
+    if (atMatch && atMatch[1]) {
+      return atMatch[1];
+    }
+
+    // 3. existing regex — app= or application=
     const appMatch = elementStr.match(/app(?:lication)?[=:]\s*([A-Za-z0-9_.-]+)/i);
     if (appMatch && appMatch[1]) {
       return appMatch[1];
     }
 
     return "Unknown API";
-  }
+}
 
   function renderErrorBanner(message) {
     if (typeof global.renderErrorBanner === "function") {
@@ -428,9 +439,10 @@
           if (!errorMessage && exception.error) {
             errorMessage = exception.error;
           }
-
+          
           if ((!filename || filename === "N/A") && exception.Element) {
             const extracted = extractFilenameFromElement(exception.Element);
+            
             if (extracted) filename = extracted;
           }
 
@@ -438,6 +450,7 @@
             const apiNameFromElement = extractApiNameFromElement(
               exception.Element,
             );
+            
             if (apiNameFromElement && apiNameFromElement !== "Unknown API") {
               apiName = apiNameFromElement;
             }

@@ -521,6 +521,8 @@ def _build_mulesoft_code_gen_prompt(
     narrative_only: bool = False,
     refined_analysis: str = "",
     user_context: str = "",
+    immediate_actions: str = "",
+    change_summary: str = "",
 ) -> str:
     """
     Build a rich, MuleSoft-specific code generation prompt.
@@ -663,6 +665,24 @@ def _build_mulesoft_code_gen_prompt(
             "",
             "═══ REFINED AI ANALYSIS ═══",
             refined_analysis,
+        ]
+
+    # Add immediate actions if available - these are specific instructions for code generation
+    if immediate_actions:
+        prompt_parts += [
+            "",
+            "═══ IMMEDIATE ACTIONS (SPECIFIC INSTRUCTIONS) ═══",
+            "Treat the following Immediate Actions as specific, mandatory instructions for code generation:",
+            immediate_actions,
+        ]
+
+    # Add change summary if available - this provides the exact changes needed
+    if change_summary:
+        prompt_parts += [
+            "",
+            "═══ CHANGE SUMMARY (EXACT CHANGES REQUIRED) ═══",
+            "Use this Change Summary to guide the exact modifications needed:",
+            change_summary,
         ]
 
     # Add user context if available
@@ -836,6 +856,8 @@ def generate_code_changes():
             narrative_only=narrative_only,
             refined_analysis=refined_analysis,
             user_context=user_context,
+            immediate_actions=data.get("immediate_actions", ""),
+            change_summary=data.get("change_summary", ""),
         )
 
         # Extract expected file:line from the error for LLM context

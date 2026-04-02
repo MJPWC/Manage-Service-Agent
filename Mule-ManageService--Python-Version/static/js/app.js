@@ -1837,36 +1837,76 @@
       const ext = (file.name.split(".").pop() || "").toLowerCase();
 
       const ctx = window.__eventDetailsContext || {};
+      
+      // Extract specific sections from the analysis
+      const analysisSections = extractAnalysisSections(ctx.refinedAnalysis || '');
+      
+      // Check if we have multi-file context from GitHub analysis
+      const hasMultiFileContext = ctx.githubSourceFileContentByBasename && 
+        Object.keys(ctx.githubSourceFileContentByBasename).length > 1;
+      
+      // Prepare payload based on single vs multi-file context
+      let payload;
+      if (hasMultiFileContext) {
+        // Multi-file context: pass all available files
+        const allFileContents = ctx.githubSourceFileContentByBasename;
+        const allFileNames = Object.keys(allFileContents);
+        
+        payload = {
+          content: errorText || file.content,
+          file_path: file.path,
+          
+          // Multi-file support
+          reference_files: allFileNames.map(fileName => ({
+            name: fileName,
+            content: allFileContents[fileName],
+            path: ctx.githubRepoPathByBasename?.[fileName] || fileName
+          })),
+          
+          // Backward compatibility - primary file
+          reference_file_content: file.referenceSourceContent || file.reference_file_content || "",
+          reference_file_name: file.name,
+          reference_file_extension: ext,
+          
+          // Analysis context
+          refined_analysis: ctx.refinedAnalysis || "",
+          immediate_actions: analysisSections.immediate_actions || "",
+          change_summary: analysisSections.change_summary || "",
+          ai_error_observations: ctx.lastSummaryObservations || "",
+          ai_error_rca: ctx.lastSummaryRca || "",
+          user_context: ctx.lastUserContext || "",
+        };
+        
+        console.log(`Multi-file context detected. Passing ${allFileNames.length} files:`, allFileNames);
+      } else {
+        // Single file context (existing logic)
+        payload = {
+          content: errorText || file.content,
+          file_path: file.path,
+          reference_file_content: errorText
+            ? file.content
+            : file.referenceSourceContent || file.reference_file_content || "",
+          reference_file_name: file.name,
+          reference_file_extension: ext,
+          refined_analysis: ctx.refinedAnalysis || "",
+          immediate_actions: analysisSections.immediate_actions || "",
+          change_summary: analysisSections.change_summary || "",
+          ai_error_observations: ctx.lastSummaryObservations || "",
+          ai_error_rca: ctx.lastSummaryRca || "",
+          user_context: ctx.lastUserContext || "",
+        };
+      }
 
-      const payload = {
-        content: errorText || file.content,
-
-        file_path: file.path,
-
-        reference_file_content: errorText
-          ? file.content
-          : file.referenceSourceContent || file.reference_file_content || "",
-
-        reference_file_name: file.name,
-
-        reference_file_extension: ext,
-
-        refined_analysis: ctx.refinedAnalysis || "",
-
-        ai_error_observations: ctx.lastSummaryObservations || "",
-
-        ai_error_rca: ctx.lastSummaryRca || "",
-
-        user_context: ctx.lastUserContext || "",
-      };
+      console.log(`payload for code generation is:`, payload);
 
       const result = await api(
         "POST",
         "/api/error/generate-code-changes",
         payload,
       );
-
-      if (result.success) {
+      
+      if (result.success) 
+        {
 
         const narrativeOnlyDiagnosis = !!result.narrative_only_diagnosis;
 
@@ -2175,12 +2215,16 @@
 
           resultDiv.innerHTML = html;
         }
+        console.log("Code generation successful:", result);
       } else {
-        resultDiv.innerHTML = `<div class="error">Generate failed: ${escapeHtml(result.error || "Unknown error")}</div>`;
+        console.error("Code generation failed:", result);
+        resultDiv.innerHTML = `<div class="error">Code generation failed: ${result.error || 'Unknown error'}</div>`;
       }
-    } catch (error) {
-        resultDiv.innerHTML = `<div class="error">Generate failed: ${error.message}</div>`;
-    } finally {
+    } catch (err) {
+      console.error("Error in runGenerateCodeChanges:", err);
+      resultDiv.innerHTML = `<div class="error">Analysis failed: ${err.message}</div>`;
+    }
+     finally {
       const regenerateBtn = resultDiv.querySelector("#btnRegenerate");
       if (regenerateBtn) {
         regenerateBtn.disabled = false;
@@ -6486,6 +6530,20 @@
           }
         }
         
+        // Check if any files were successfully fetched
+        const successfulFetches = Object.entries(fileContents).filter(([fileName, content]) => 
+          !content.startsWith('// Could not fetch file content') && !content.startsWith('// Error fetching file')
+        );
+        
+        if (successfulFetches.length === 0) {
+          setEventDetailsFlowState("attach");
+          hideLoading();
+          alert("No files available on GitHub. The referenced files could not be found in your repositories. Please try to upload file locally.");
+          return;
+        }
+        
+        console.log(` Successfully fetched ${successfulFetches.length} out of ${fileList.length} files`);
+        
         // Set GitHub context in the event details context for code generation
         if (repoName) {
           ctx.githubRepoOwner = repoOwner;
@@ -6535,14 +6593,38 @@ window.analyzeErrorWithRulesetUnified = async function(logIndex = 0, fileList = 
     
     // Check if this is from multi-file upload (ctx.errorDescription) or event details (ctx.logs)
     let errorContent;
-    if (ctx.errorDescription) {
+    if (ctx.logs && ctx.logs.length > 0) {
+      // Event details context (GitHub multi-file)
+      if (ctx.logs.length > 1) {
+        // Multiple logs: extract exception content from each log
+        errorContent = ctx.logs.map((log, index) => {
+          const appName = log.application_name || log.application || 'Unknown Application';
+          let exceptionContent = '';
+          
+          if (log.exception) {
+            // Convert exception object to readable string
+            if (typeof log.exception === 'object') {
+              exceptionContent = Object.entries(log.exception)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n');
+            } else {
+              exceptionContent = log.exception;
+            }
+          } else {
+            exceptionContent = log.message || log.error_description || 'No exception details available';
+          }
+          
+          return `=== Log ${index + 1} from ${appName} ===\n${exceptionContent}`;
+        }).join('\n\n');
+      } else {
+        // Single log: use existing format
+        errorContent = ctx.logs.map(log => 
+          `${log.application_name || log.application}: ${log.message || log.error_description || 'No description'}`
+        ).join('\n');
+      }
+    } else if (ctx.errorDescription) {
       // Multi-file upload context
       errorContent = ctx.errorDescription;
-    } else if (ctx.logs && ctx.logs.length > 0) {
-      // Event details context (GitHub multi-file)
-      errorContent = ctx.logs.map(log => 
-        `${log.application_name || log.application}: ${log.message || log.error_description || 'No description'}`
-      ).join('\n');
     } else {
       errorContent = "No error description available";
     }
@@ -6555,7 +6637,7 @@ window.analyzeErrorWithRulesetUnified = async function(logIndex = 0, fileList = 
     content = serializeErrorBlock(log, ctx.appName || "Unknown Application");
     filePath = log.component || "unknown-file.xml";
   }
-  
+  //console.log(`content send to llm :`, content);
   // Use a ruleset-aligned prompt so the UI can render consistent sections.
   const prompt =
     "Analyze this MuleSoft error using the error-analysis ruleset. Output ALL required sections with bold section headers (e.g., **Summary**, **Quick Fix**, etc.). Do not omit any section even if values are N/A.";
