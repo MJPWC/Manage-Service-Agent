@@ -1843,7 +1843,9 @@
 
         file_path: file.path,
 
-        reference_file_content: errorText ? file.content : "",
+        reference_file_content: errorText
+          ? file.content
+          : file.referenceSourceContent || file.reference_file_content || "",
 
         reference_file_name: file.name,
 
@@ -2293,7 +2295,10 @@
 
         new_content: suggestedCode,
 
-        original_content: file.content,
+        original_content:
+          file.referenceSourceContent != null && file.referenceSourceContent !== ""
+            ? file.referenceSourceContent
+            : file.content,
 
         commit_message: "Apply AI-suggested code changes",
       });
@@ -4339,13 +4344,20 @@
 
             if (errorText) {
               // Create a file object that matches the expected structure
+              const resolvedName =
+                (fileName &&
+                  fileName !== "N/A" &&
+                  String(fileName).toLowerCase() !== "defaultexceptionlistener" &&
+                  fileName) ||
+                getErrorFileNameFromLog(ctx.logs?.[0]) ||
+                "unknown-file.xml";
 
               const localFile = {
-                name: fileName,
+                name: resolvedName,
 
                 content: errorText,
 
-                path: fileName,
+                path: resolvedName,
 
                 owner: null,
 
@@ -4358,8 +4370,15 @@
             }
           } else {
             // GitHub mode: use original GitHub flow
+            const resolvedGithubName =
+              (fileName &&
+                fileName !== "N/A" &&
+                String(fileName).toLowerCase() !== "defaultexceptionlistener" &&
+                fileName) ||
+              getErrorFileNameFromLog(ctx.logs?.[0]) ||
+              fileName;
 
-            openFileOnGithub(appName, fileName, errorDescription);
+            openFileOnGithub(appName, resolvedGithubName, errorDescription);
           }
         } else if (action === "flow-cancel") {
           const ctx = window.__eventDetailsContext;
@@ -4613,7 +4632,25 @@
       return fieldToUse;
     }
 
-    return log.component || "N/A";
+    // Mule often sets component to "DefaultExceptionListener" — that is NOT the source file.
+    if (log.message) {
+      const filePattern = /([^\/\s]+\.(xml|dwl|dw))/gi;
+      const matches = log.message.match(filePattern);
+      if (matches && matches.length > 0) {
+        return matches[0].split("/").pop();
+      }
+    }
+
+    const comp = (log.component || "").trim();
+    if (
+      comp &&
+      comp !== "N/A" &&
+      comp.toLowerCase() !== "defaultexceptionlistener"
+    ) {
+      return comp;
+    }
+
+    return "";
   }
 
   // Global functions for button clicks
@@ -5694,16 +5731,31 @@
           ctx.logs[0],
           ctx.appName || "Unknown Application",
         );
-        const fileName = ctx.logs[0]?.component || "unknown-file.xml";
+        const log0 = ctx.logs[0];
+        let baseName =
+          getErrorFileNameFromLog(log0) ||
+          (ctx.githubRepoPathByBasename &&
+            Object.keys(ctx.githubRepoPathByBasename)[0]) ||
+          "unknown-file.xml";
+        baseName = String(baseName).split(/[\\/]/).pop() || "unknown-file.xml";
+
+        const repoPath =
+          (ctx.githubRepoPathByBasename && ctx.githubRepoPathByBasename[baseName]) ||
+          baseName;
+        const referenceSource =
+          (ctx.githubSourceFileContentByBasename &&
+            ctx.githubSourceFileContentByBasename[baseName]) ||
+          "";
 
         // Check if we have GitHub context available
         const hasGitHubContext = ctx.githubRepoOwner && ctx.githubRepoName;
         
         // For AI Analysis context, create file object with GitHub context if available
         const analysisFile = {
-          name: fileName,
-          content: fullErrorBlock, // Raw error log — what the LLM needs to generate the fix
-          path: fileName,
+          name: baseName,
+          content: fullErrorBlock, // Raw error log — main LLM input when analysis prompt is empty
+          path: repoPath, // repo-relative path for /api/github/apply-changes
+          referenceSourceContent: referenceSource, // original XML (etc.) for codegen + PR baseline
           owner: hasGitHubContext ? ctx.githubRepoOwner : null,
           repo: hasGitHubContext ? ctx.githubRepoName : null,
           isLocalAnalysis: !hasGitHubContext, // Flag to indicate if this is local analysis
@@ -6399,6 +6451,15 @@
             
             if (response.success && response.content) {
               fileContents[fileName] = response.content;
+
+              // Repo-relative path + source for later "Generate code" / PR (basename keys)
+              if (!ctx.githubRepoPathByBasename) ctx.githubRepoPathByBasename = {};
+              if (!ctx.githubSourceFileContentByBasename)
+                ctx.githubSourceFileContentByBasename = {};
+              if (response.file_path) {
+                ctx.githubRepoPathByBasename[fileName] = response.file_path;
+              }
+              ctx.githubSourceFileContentByBasename[fileName] = response.content;
               
               // Extract repository information from the response
               if (response.found_in_repo && !repoName) {
